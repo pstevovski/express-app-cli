@@ -1,0 +1,19 @@
+{
+  "name": "express-app-cli",
+  "version": "0.0.1",
+  "description": "CLI app for generating an express project folder structure",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "CLI",
+    "app",
+    "nodejs",
+    "express",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Petar Stevovski",
+  "license": "ISC"
+}
