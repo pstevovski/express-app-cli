@@ -2,10 +2,13 @@
   "name": "express-app-cli",
   "version": "0.0.1",
   "description": "CLI app for generating an express project folder structure",
-  "main": "src/app.js",
-  "bin": "src/app.js",
+  "main": "build/app.js",
+  "bin": "build/app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "tsc build && node src/app.js",
+    "start-ts": "ts-node src/app.ts",
+    "watch": "nodemon src/app.ts",
+    "build": "tsc --outDir ./build"
   },
   "keywords": [
     "CLI",
@@ -24,5 +27,11 @@
   "bugs": {
     "url": "git+https://github.com/pecko95/express-app-cli/issues"
   },
-  "homepage": "https://github.com/pecko95/express-app-cli#readme"
+  "homepage": "https://github.com/pecko95/express-app-cli#readme",
+  "devDependencies": {
+    "@types/node": "^14.14.2",
+    "nodemon": "^2.0.6",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
 }
