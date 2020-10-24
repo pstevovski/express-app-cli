@@ -2,9 +2,10 @@
   "name": "express-app-cli",
   "version": "0.0.1",
   "description": "CLI app for generating an express project folder structure",
-  "main": "app.js",
+  "main": "src/app.js",
+  "bin": "src/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/app.js"
   },
   "keywords": [
     "CLI",
@@ -15,5 +16,13 @@
     "typescript"
   ],
   "author": "Petar Stevovski",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pecko95/express-app-cli.git"
+  },
+  "bugs": {
+    "url": "git+https://github.com/pecko95/express-app-cli/issues"
+  },
+  "homepage": "https://github.com/pecko95/express-app-cli#readme"
 }
