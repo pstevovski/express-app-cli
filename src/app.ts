@@ -1,6 +1,6 @@
 #!usr/bin/env node
 
-import promptUser from "./prompt";
+import promptUser from "./commands/prompt";
 import { Answers } from "inquirer";
 
 async function startApp(): Promise<void> {

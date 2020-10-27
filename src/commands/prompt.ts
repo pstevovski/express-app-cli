@@ -3,12 +3,6 @@ import inquirer, { Answers } from "inquirer";
 const promptUser = async (): Promise<Answers> => {
     const answers: Answers = await inquirer.prompt([
         {
-            type: "input",
-            name: "location",
-            message: "Enter the location where you would like the project to be created:",
-            default: __dirname
-        },
-        {
             type: "list",
             name: "template",
             message: "Choose the template you want to be used:",
