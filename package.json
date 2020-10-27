@@ -4,6 +4,9 @@
     "description": "CLI app for generating an express project folder structure",
     "main": "build/app.js",
     "bin": "build/app.js",
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "start": "tsc build && node src/app.js",
         "start-ts": "ts-node src/app.ts",
