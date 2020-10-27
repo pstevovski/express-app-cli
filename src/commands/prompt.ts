@@ -1,14 +1,9 @@
 import inquirer, { Answers } from "inquirer";
+import IParseArguments from "../interfaces/IParseArguments";
 
-const promptUser = async (): Promise<Answers> => {
-  const answers: Answers = await inquirer.prompt([
-    {
-      type: "list",
-      name: "template",
-      message: "Choose the template you want to be used:",
-      default: "javascript",
-      choices: ["Javascript", "Javascript ES6+ (with Babel)", "Typescript"],
-    },
+const promptUser = async ({ git, template }: IParseArguments): Promise<Answers> => {
+  // Default questions
+  const questions: Answers[] = [
     {
       type: "list",
       name: "db",
@@ -33,7 +28,7 @@ const promptUser = async (): Promise<Answers> => {
       message: "Choose preferred testing library:",
       default: "Jest",
       choices: ["Jest", "Mocha", "Chai"],
-      when: (answers) => answers.includeTestingLib,
+      when: (answers: Answers) => answers.includeTestingLib,
     },
     {
       type: "confirm",
@@ -46,7 +41,7 @@ const promptUser = async (): Promise<Answers> => {
       name: "validationLibrary",
       message: "Selected validation library to be used:",
       choices: ["Yup", "Joi"],
-      when: (answers) => answers.validation,
+      when: (answers: Answers) => answers.validation,
     },
     {
       type: "checkbox",
@@ -54,7 +49,28 @@ const promptUser = async (): Promise<Answers> => {
       message: "Other dependencies you would like to be included:",
       choices: ["winston", "morgan", "bcrypt", "jsonwebtoken"],
     },
-  ]);
+  ];
+
+  // If git was not sent as an argument, ask a question
+  if (!git)
+    questions.unshift({
+      type: "confirm",
+      name: "git",
+      message: "Would you like to initialize git?",
+      default: true,
+    });
+
+  // If project template was not sent as argument, ask a question
+  if (!template)
+    questions.unshift({
+      type: "list",
+      name: "template",
+      message: "Choose the template you want to be used:",
+      default: "JavaScript",
+      choices: ["JavaScript", "TypeScript"],
+    });
+
+  const answers: Answers = await inquirer.prompt(questions);
 
   return answers;
 };
