@@ -8,7 +8,7 @@ import IParseArguments from "./interfaces/IParseArguments";
 async function startApp(): Promise<void> {
   console.log("Starting application...");
 
-  const options: IParseArguments = parseArguments();
+  const options: IParseArguments = parseArguments(process.argv);
 
   console.log("OPTIONS: ", options);
 
