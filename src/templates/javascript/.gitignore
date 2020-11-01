@@ -1,0 +1,5 @@
+# Folders and files to ignore
+node_modules/
+
+# Un-comment this file after installation - YOU SHOULD NEVER INCLUDE THE .env FILES IN YOUR REPOSITORY.
+# .env
