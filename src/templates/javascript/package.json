@@ -17,6 +17,7 @@
     "helmet": "^4.1.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "cookie-parser": "^1.4.5",
     "body-parser": "^1.19.0"
   },
   "keywords": ["some", "keywords", "here"],
