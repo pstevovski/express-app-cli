@@ -8,4 +8,6 @@ async function loader(app: Application): Promise<void> {
 
     // Other loaders to here.
     // IMPORTANT: All other loaders must come AFTER the expressApp loader has completed starting the server
-}
+};
+
+export default loader;
