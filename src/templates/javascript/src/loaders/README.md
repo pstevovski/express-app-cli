@@ -8,15 +8,14 @@ Example of a database connection loader when using MongoDB:
 ```js
 const mongoose = require("mongoose");
 const config = require("../config/index");
-const { Db } = require("mongodb");
 
 async function connectMongoose() {
-    const mongooseConnection = await mongoose.connect(config.MONGODB_URI, {
+    const { connection } = await mongoose.connect(config.MONGODB_URI, {
         useNewUrlParser: true, 
         useCreateIndex: true, 
         useUnifiedTopology: true
     });
-    return mongooseConnection.connection.db;
+    return connection.db;
 };
 
 module.exports = connectMongoose;
