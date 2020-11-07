@@ -4,7 +4,7 @@ import { Application } from "express";
 import routes from "../api/index";
 
 // Middlewares
-import errorHandlingMiddleware from "../middlewares/errorHandling";
+import errorHandlingMiddleware from "../middlewares/errorHandlingMiddleware";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
