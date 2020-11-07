@@ -3,7 +3,7 @@ import { Request, Response, Router } from "express";
 const route = Router();
 
 const exampleRoute = (app: Router) => {
-    app.use("/example", route());
+    app.use("/example", route);
 
     route.get("/", async(req: Request, res: Response) => {
         res.send(`
