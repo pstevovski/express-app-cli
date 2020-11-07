@@ -4,7 +4,7 @@ import promptUser from "./commands/prompt";
 import { Answers } from "inquirer";
 import parseArguments from "./parseArguments";
 import IParseArguments from "./interfaces/IParseArguments";
-import copyFilesFromTemplate from "./commands/copyFiles";
+import CopyFiles from "./commands/copyFiles";
 
 async function startApp(): Promise<void> {
   console.log("Starting application...");
@@ -17,8 +17,7 @@ async function startApp(): Promise<void> {
 
   console.log("Answers: ", answers);
 
-  console.log("Copying files...");
-  await copyFilesFromTemplate(answers.template, options.projectDirectory);
+  await CopyFiles.copyFiles(answers.template, answers.db, options.projectDirectory);
 }
 
 startApp();
