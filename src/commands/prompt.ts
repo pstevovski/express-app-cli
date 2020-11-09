@@ -18,30 +18,17 @@ const promptUser = async ({ git, template }: IParseArguments): Promise<Answers> 
     },
     {
       type: "confirm",
-      name: "includeTestingLib",
+      name: "include_testing",
       message: "Would you like to include a testing library?",
       default: true,
     },
     {
       type: "list",
-      name: "testingLibrary",
+      name: "testing_library",
       message: "Choose preferred testing library:",
       default: "Jest",
       choices: ["Jest", "Mocha", "Chai"],
-      when: (answers: Answers) => answers.includeTestingLib,
-    },
-    {
-      type: "confirm",
-      name: "validation",
-      message: "Would you liket to include a valdation library?",
-      default: true,
-    },
-    {
-      type: "list",
-      name: "validationLibrary",
-      message: "Selected validation library to be used:",
-      choices: ["Yup", "Joi"],
-      when: (answers: Answers) => answers.validation,
+      when: (answers: Answers) => answers.include_testing,
     },
     {
       type: "checkbox",
