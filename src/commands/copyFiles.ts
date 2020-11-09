@@ -7,18 +7,27 @@ import chalk from "chalk";
 const copy = promisify(ncp);
 const access = promisify(fs.access);
 
-class Copy {
+class CopyFiles {
     private _currentFileURL = __dirname;
     
     // Copy main template project files
-    public async copyFiles(template: string, db: string, targetDirectory: string): Promise<void> {
+    public async copyFiles(userAnswers: ICopyFilesUserAnswers, targetDirectory: string): Promise<void> {
+        const { template, db, include_testing } = userAnswers;
+
         console.log(chalk.blueBright.bold("Creating project directory..."));
 
-        const { main_files, db_files } = this.getTemplateDirectory(template, db);
+        const { main_files, db_files, default_files } = this.getTemplateDirectory(template, db);
 
         try {
+            await access(default_files, fs.constants.R_OK);
             await access(main_files, fs.constants.R_OK);
             await access(db_files, fs.constants.R_OK);
+            
+            // Copy files from the default files template
+            await copy(default_files, targetDirectory, { 
+                clobber: false,
+                filter: include_testing ? undefined : RegExp('tests')
+            });
 
             // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
             await copy(main_files, targetDirectory, { clobber: false });
@@ -43,10 +52,13 @@ class Copy {
         const main_files: string = path.resolve(pathname, `${pathToTemplates}/server`);
         const db_files: string = path.resolve(pathname, `${pathToTemplates}/db/${db.toLowerCase()}/`);
 
-        return { main_files, db_files };
+        // Copy default files and include tests folder if user selected testing option
+        const default_files: string = path.resolve(pathname, "../../src/templates/default");
+
+        return { main_files, db_files, default_files };
     }
 }
 
-const CopyFiles = new Copy();
+const Copy = new CopyFiles();
 
-export default CopyFiles;
+export default Copy;
