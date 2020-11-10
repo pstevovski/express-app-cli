@@ -1,40 +1,172 @@
 import arg from "arg";
+import chalk from "chalk";
 import path from "path";
 import IParseArguments from "./interfaces/IParseArguments";
 
-function parseArguments(args: string[]): IParseArguments {
-  // Get the arguments passed from the user
-  const parsedArgs = arg(
-    {
-      "--git": Boolean,
-      "-g": "--git",
-    },
-    { argv: args.slice(2) },
-  );
+class Arguments {
 
-  // Format the full path to the project directory
-  let fullPath: string = "";
+  public async parseArguments(args: string[]): Promise<IParseArguments | undefined> {
+    // Get the arguments from the user
+    const parsedArgs = arg(
+      {
+        "--git": Boolean,
+        "--db": String,
+        "--testing": String,
+        "--auth": Boolean,
+        "--template": String,
+        "--help": Boolean,
+        "--version": Boolean,
+  
+        // Shorthands
+        "-g": "--git",
+        "-h": "--help",
+        "-v": "--v"
+      },
+      { argv: args.slice(2) },
+    );
 
-  switch (true) {
-    // If the user does not pass a path as an argument, default to the current working directory
-    case !parsedArgs._[0] || parsedArgs._[0] === ".":
-      fullPath = process.cwd();
-      break;
-    // If the passed directory path is absolute, normalize it removing any extra characters
-    case path.isAbsolute(parsedArgs._[0]):
-      fullPath = path.normalize(parsedArgs._[0]);
-      break;
-    // If the passed directory path is a relative path, merge the current working directory and the argument representing the path
-    case !path.isAbsolute(parsedArgs._[0]):
-      fullPath = path.join(process.cwd(), parsedArgs._[0]);
-      break;
+    // Format the path to the targeted directory
+    const pathToDirectory: string = await this.formatPath(parsedArgs._[0]); 
+
+    const invalidArguments = {
+      ...(parsedArgs["--db"] && { "--db": parsedArgs["--db"] }),
+      ...(parsedArgs["--template"] && { "--template": parsedArgs["--template"] }),
+      ...(parsedArgs["--testing"] && { "--testing": parsedArgs["--testing"] })
+    };
+
+    const errors = await this.handleInvalidArguments(invalidArguments);
+
+    // If there's an error return the message
+    if (errors && errors.length > 0) {
+      errors.forEach((errorMsg: string) => {
+        console.log(chalk.red.bold("ERROR: "), errorMsg)
+      });
+
+      console.log();
+      console.log(chalk.bold("See --help for more information."));
+      console.log();
+
+      return;
+    }
+
+    return {
+      projectDirectory: pathToDirectory,
+      git: parsedArgs["--git"] || false,
+      db: parsedArgs["--db"] || "",
+      testing: parsedArgs["--testing"] || "",
+      auth: parsedArgs["--auth"] || false,
+      template: parsedArgs["--template"] || "",
+    };
+
+  } 
+
+  // Formats the path to the directory where we want the project created
+  private async formatPath(directoryPath: string): Promise<string> {
+    let fullPath: string = "";
+
+    switch (true) {
+      // If the user does not pass a path as an argument, default to the current working directory
+      case !directoryPath || directoryPath === ".":
+        fullPath = process.cwd();
+        break;
+      // If the passed directory path is absolute, normalize it removing any extra characters
+      case path.isAbsolute(directoryPath):
+        fullPath = path.normalize(directoryPath);
+        break;
+      // If the passed directory path is a relative path, merge the current working directory and the argument representing the path
+      case !path.isAbsolute(directoryPath):
+        fullPath = path.join(process.cwd(), directoryPath);
+        break;
+    }
+
+    return fullPath;
   }
 
-  return {
-    projectDirectory: fullPath,
-    git: parsedArgs["--git"] || false,
-    template: parsedArgs._[1],
-  };
+  // Handle potential invalid arguments
+  private handleInvalidArguments(parsedArguments: Object): string[] {
+    const supportedDBs: string[] = ["mongodb", "mysql", "postgresql"];
+    const supportedTestingLibraries: string[] = ["jest", "mocha", "chai"];
+    const supportedLanguageTemplates: string[] = ["javascript", "typescript"];
+
+    const errors: string[] = [];
+
+    for(const [key, value] of Object.entries(parsedArguments)) {
+
+      switch(true) {
+        case key === "--db" && !supportedDBs.includes(value):
+          errors.push("Unsupported type of database.");
+          break;
+        case key === "--testing" && !supportedTestingLibraries.includes(value):
+          errors.push("Unsupported type of testing library.");
+          break;
+        case key === "--template" && !supportedLanguageTemplates.includes(value):
+          errors.push("Unsupported language template.");
+          break;
+      }
+
+    }
+
+    return errors;
+  }
 }
 
-export default parseArguments;
+const ArgumentsHandler = new Arguments();
+
+export default ArgumentsHandler;
+
+// function parseArguments(args: string[]): IParseArguments {
+  // Get the arguments passed from the user
+  // const parsedArgs = arg(
+  //   {
+  //     "--git": Boolean,
+  //     "--db": String,
+  //     "--testing": String,
+  //     "--auth": Boolean,
+  //     "--template": String,
+  //     "--help": Boolean,
+  //     "--version": Boolean,
+
+  //     // Shorthands
+  //     "-g": "--git",
+  //     "-h": "--help",
+  //     "-v": "--v"
+  //   },
+  //   { argv: args.slice(2) },
+  // );
+
+  // TODO: If user selects --help then display help information
+  // TODO: If user selects --version then display the version of the package (?)
+
+  // Format the full path to the project directory
+  // let fullPath: string = "";
+
+  // switch (true) {
+  //   // If the user does not pass a path as an argument, default to the current working directory
+  //   case !parsedArgs._[0] || parsedArgs._[0] === ".":
+  //     fullPath = process.cwd();
+  //     break;
+  //   // If the passed directory path is absolute, normalize it removing any extra characters
+  //   case path.isAbsolute(parsedArgs._[0]):
+  //     fullPath = path.normalize(parsedArgs._[0]);
+  //     break;
+  //   // If the passed directory path is a relative path, merge the current working directory and the argument representing the path
+  //   case !path.isAbsolute(parsedArgs._[0]):
+  //     fullPath = path.join(process.cwd(), parsedArgs._[0]);
+  //     break;
+  // }
+
+  // TODO: Handle errors for unsupported databases, testing libraries and templates
+//   if(parsedArgs["--db"] && !["mongodb", "mysql", "postgresql"].includes(parsedArgs["--db"])) {
+//     throw new Error(chalk.red.bold("ERROR: Not supported type of database. See --help for more information."))
+//   }
+
+//   return {
+//     projectDirectory: fullPath,
+//     git: parsedArgs["--git"] || false,
+//     db: parsedArgs["--db"] || "",
+//     testing: parsedArgs["--testing"] || "",
+//     auth: parsedArgs["--auth"] || false,
+//     template: parsedArgs["--template"] || "",
+//   };
+// }
+
