@@ -7,5 +7,5 @@ interface ITemplateDirectories {
 interface ICopyFilesUserAnswers {
     template: string;
     db: string;
-    include_testing: boolean;
+    testing: boolean;
 }
