@@ -1,65 +1,59 @@
 import inquirer, { Answers } from "inquirer";
 import IParseArguments from "../interfaces/IParseArguments";
 
-const promptUser = async ({ git, template }: IParseArguments): Promise<Answers> => {
-  // Default questions
-  const questions: Answers[] = [
-    {
-      type: "list",
-      name: "db",
-      message: "Choose the database you would like to be used:",
-      choices: ["MongoDB", "DynamoDB", "MySQL", "PostgreSQL"],
-    },
-    {
-      type: "confirm",
-      name: "linting",
-      message: "Should it include linting?",
-      default: true,
-    },
+const promptUser = async ({ template, db, testing }: IParseArguments): Promise<Answers> => {
+  let questions: Answers[] = [];
+
+  // If arguments were not passed, prompt the user for answers
+  if (!template) questions.push({
+    type: "list",
+    name: "template",
+    message: "Choose the template you want to be used:",
+    default: "JavaScript",
+    choices: ["JavaScript", "TypeScript"],
+  });
+
+  if (!db) questions.push({
+    type: "list",
+    name: "db",
+    message: "Choose the database you would like to be used:",
+    choices: ["MongoDB", "MySQL", "PostgreSQL"]
+  });
+
+  if (!testing) questions.push(
     {
       type: "confirm",
       name: "include_testing",
       message: "Would you like to include a testing library?",
-      default: true,
+      default: true
     },
     {
       type: "list",
       name: "testing_library",
       message: "Choose preferred testing library:",
-      default: "Jest",
-      choices: ["Jest", "Mocha", "Chai"],
-      when: (answers: Answers) => answers.include_testing,
-    },
-    {
-      type: "checkbox",
-      name: "extraDependencies",
-      message: "Other dependencies you would like to be included:",
-      choices: ["winston", "morgan", "bcrypt", "jsonwebtoken"],
-    },
-  ];
-
-  // If git was not sent as an argument, ask a question
-  if (!git)
-    questions.unshift({
-      type: "confirm",
-      name: "git",
-      message: "Would you like to initialize git?",
-      default: true,
-    });
-
-  // If project template was not sent as argument, ask a question
-  if (!template)
-    questions.unshift({
-      type: "list",
-      name: "template",
-      message: "Choose the template you want to be used:",
-      default: "JavaScript",
-      choices: ["JavaScript", "TypeScript"],
-    });
+      choices: ["Jest", "Mocha", "Chai", "Jasimne"],
+      when: (answers: Answers) => answers.include_testing
+    }
+  );
+  
+  // NOTE: Should authentication option be included ? Too many paths to cover... 
+  // if (!auth) questions.push({
+  //   type: "confirm",
+  //   name: "include_auth",
+  //   message: "Would you like to include authentication and authorization?",
+  //   default: "true"
+  // });
 
   const answers: Answers = await inquirer.prompt(questions);
 
-  return answers;
+  const returnedAnswers: Answers = {
+    template: template || answers.template,
+    db: db || answers.db,
+    testing: testing || answers.testing_library,
+    // auth: auth || answers.include_auth
+  }
+
+  return returnedAnswers;
 };
 
 export default promptUser;

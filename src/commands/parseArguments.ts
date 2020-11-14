@@ -11,7 +11,7 @@ class Arguments {
       {
         "--db": String,
         "--testing": String,
-        "--auth": Boolean,
+        // "--auth": Boolean,
         "--template": String,
         "--help": Boolean,
         "--version": Boolean,
@@ -51,7 +51,7 @@ class Arguments {
       projectDirectory: pathToDirectory,
       db: parsedArgs["--db"] || "",
       testing: parsedArgs["--testing"] || "",
-      auth: parsedArgs["--auth"] || false,
+      // auth: parsedArgs["--auth"] || false,
       template: parsedArgs["--template"] || "",
     };
 
