@@ -1,6 +1,6 @@
 export default interface IParseArguments {
   projectDirectory: string;
-  git: boolean;
+  // git: boolean;
   template: string;
   db: string;
   testing: string,
