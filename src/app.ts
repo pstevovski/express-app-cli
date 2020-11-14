@@ -2,16 +2,15 @@
 
 import promptUser from "./commands/prompt";
 import { Answers } from "inquirer";
-// import parseArguments from "./parseArguments";
 import IParseArguments from "./interfaces/IParseArguments";
-import Copy from "./commands/copyFiles";
-import ArgumentsHandler from "./parseArguments";
+import Project from "./commands/create-project";
+import ArgumentsHandler from "./commands/parseArguments";
 import chalk from "chalk";
 
 async function startApp(): Promise<void> {
-  console.log("Starting application...");
+  console.log("Starting express-app CLI...");
 
-  // const options: IParseArguments = parseArguments(process.argv);
+  // Parse the arguments that the user enters when calling the applicaiton
   const parsedArguments: IParseArguments | undefined = await ArgumentsHandler.parseArguments(process.argv);
 
   // Exit due to error
@@ -20,14 +19,13 @@ async function startApp(): Promise<void> {
     process.exit(1);
   };
 
-  console.log("OPTIONS: ", parsedArguments);
-
+  // Prompt the user for answers based on arguments the user has typed
   const answers: Answers = await promptUser(parsedArguments);
+  const { template, db, testing } = answers; 
 
-  console.log("Answers: ", answers);
+  // Creates the project template directory and files
+  await Project.create({ template, db, testing }, parsedArguments.projectDirectory);
 
-  const { template, db, include_testing } = answers; 
-  await Copy.copyFiles({ template, db, include_testing }, parsedArguments.projectDirectory);
 }
 
 startApp();

@@ -1,11 +1,7 @@
-interface IConfigTemplates {
-    template: string;
-    db: string;
-    auth: string;
-};
+import { IProjectConfigTemplates } from "../../interfaces/IProject";
 
 // Create CONFIG file based on template and database
-export const config_ts = (options: Partial<IConfigTemplates>) => `import dotenv from "dotenv";
+export const config_ts = (options: Partial<IProjectConfigTemplates>) => `import dotenv from "dotenv";
 
 // Handles the usage of .env files
 dotenv.config();
@@ -22,7 +18,7 @@ export default {
     ${options.db === "mongodb" ? 'MONGODB_URI: process.env[`MONGODB_URI_${environment}`] || "mongodb://localhost/exampleDb"' : ''}
 }`;
 
-export const config_js = (options: Partial<IConfigTemplates>) => `// Handles the usage of .env files
+export const config_js = (options: Partial<IProjectConfigTemplates>) => `// Handles the usage of .env files
 require("dotenv").config();
 
 // Get the environment in which the server is currently running
