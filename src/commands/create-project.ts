@@ -3,6 +3,7 @@ import { promisify } from "util";
 import path from "path";
 import fs from "fs";
 import chalk from "chalk";
+import fse from "fs-extra";
 
 import { config_js, config_ts, env, gitignore } from "../templates/files/text_templates";
 
@@ -26,19 +27,20 @@ class ProjectTemplate {
 
         console.log(chalk.blueBright.bold("Creating project directory..."));
 
-        const { main_files, db_files, default_files } = this.getTemplateDirectory(template, db);
+        const { main_files, dbFiles, default_files } = this.getTemplateDirectory(template, db);
 
         try {
             await access(default_files, fs.constants.R_OK);
             await access(main_files, fs.constants.R_OK);
-            await access(db_files, fs.constants.R_OK);
+            await access(dbFiles, fs.constants.R_OK);
             
+            // TODO: Replace ncp (copy in this case) with fse.copy()
             // Copy files from the default files template
             await copy(default_files, directory, { 
                 clobber: false,
                 filter: testing ? undefined : RegExp('tests')
             });
-            
+
             // if auth is selected:
             // - copy api/routes/login
             // - copy middlewares/authentication
@@ -53,10 +55,21 @@ class ProjectTemplate {
             // filter: include_auth ? undefined : template === "javascript" ? 
 
             // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
-            await copy(main_files, directory, { clobber: false });
+            // await copy(main_files, directory, { clobber: false });
+            await fse.copy(main_files, directory, { overwrite: false });
 
             // Copy files recursively from db template directory to targeted directory and ALLOW overwrite
-            await copy(db_files, directory, { clobber: true });
+            await fse.copy(dbFiles, `${directory}/src/`, {
+                overwrite: true,
+                filter: async(file: string): Promise<boolean> => {
+                    if (template.toLowerCase() === "javascript") {
+                        return (await fse.stat(file)).isDirectory() || file.endsWith(".js") || file.endsWith(".md");
+                    } else {
+                        return (await fse.stat(file)).isDirectory() || file.endsWith(".ts") || file.endsWith(".md");
+                    }
+                }}
+            );
+            
 
             return console.log(chalk.blueBright.bold("Files copied."));
 
@@ -67,18 +80,19 @@ class ProjectTemplate {
             process.exit(1);
         }
     };
-    
+
     private getTemplateDirectory(template: string, db: string): ITemplateDirectories {
         const pathname: string = new URL(this._currentFileURL).pathname;
-        const pathToTemplates: string = `../../src/templates/${template.toLowerCase()}`;
+        const pathToTemplates: string = "../../src/templates";
 
-        const main_files: string = path.resolve(pathname, `${pathToTemplates}/server`);
-        const db_files: string = path.resolve(pathname, `${pathToTemplates}/db/${db.toLowerCase()}/`);
+        const main_files: string = path.resolve(pathname, `${pathToTemplates}/${template.toLowerCase()}/server`);
+
+        const dbFiles: string = path.resolve(pathname, `${pathToTemplates}/db/${db.toLowerCase()}/src`);
 
         // Copy default files and include tests folder if user selected testing option
-        const default_files: string = path.resolve(pathname, "../../src/templates/default");
+        const default_files: string = path.resolve(pathname, `${pathToTemplates}/default`);
 
-        return { main_files, db_files, default_files };
+        return { main_files, dbFiles, default_files };
     }
 
     // Create config/index, .env and .gitignore files
