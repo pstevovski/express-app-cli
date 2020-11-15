@@ -1,61 +1,117 @@
 import arg from "arg";
 import chalk from "chalk";
 import path from "path";
-import IParseArguments from "../interfaces/IParseArguments";
+import IParseArguments, { IMapParsedArguments } from "../interfaces/IParseArguments";
 
 class Arguments {
 
   public async parseArguments(args: string[]): Promise<IParseArguments | undefined> {
     // Get the arguments from the user
-    const parsedArgs = arg(
-      {
-        "--db": String,
-        "--testing": String,
-        // "--auth": Boolean,
-        "--template": String,
-        "--help": Boolean,
-        "--version": Boolean,
-  
-        // Shorthands
-        "-h": "--help",
-        "-v": "--v"
-      },
-      { argv: args.slice(2) },
-    );
+    try {
+      const parsedArgs = arg(
+        {
+          // "--auth": Boolean,
+          "--help": Boolean,
+          "--version": Boolean,
+          "--default": Boolean,
+          
+          // language template arguments
+          "--javascript": Boolean,
+          "--typescript": Boolean,
 
-    // Format the path to the targeted directory
-    const pathToDirectory: string = await this.formatPath(parsedArgs._[0]); 
+          // database arguments
+          "--mongodb": Boolean,
+          "--postgresql": Boolean,
+          "--mysql": Boolean,
 
-    const invalidArguments = {
-      ...(parsedArgs["--db"] && { "--db": parsedArgs["--db"] }),
-      ...(parsedArgs["--template"] && { "--template": parsedArgs["--template"] }),
-      ...(parsedArgs["--testing"] && { "--testing": parsedArgs["--testing"] })
-    };
+          // testing arguments
+          "--jest": Boolean,
+          "--mocha": Boolean,
+          "--chai": Boolean,
 
-    const errors = await this.handleInvalidArguments(invalidArguments);
+          // Shorthands
+          "-h": "--help",
+          "-v": "--v",
+          "--js": "--javascript",
+          "--ts": "--typescript",
+        },
+        { argv: args.slice(2) },
+      );
 
-    // If there's an error return the message
-    if (errors && errors.length > 0) {
-      errors.forEach((errorMsg: string) => {
-        console.log(chalk.red.bold("ERROR: "), errorMsg)
-      });
+      const { DB, LANGUAGE, TESTING_LIBRARY }: IMapParsedArguments = await this.mapArguments(parsedArgs);
 
-      console.log();
-      console.log(chalk.bold("See --help for more information."));
-      console.log();
+      // Format the path to the targeted directory
+      const pathToDirectory: string = await this.formatPath(parsedArgs._[0]); 
 
-      return;
+      return {
+        projectDirectory: pathToDirectory,
+        db: DB[0],
+        testing: TESTING_LIBRARY[0],
+        template: LANGUAGE[0]
+        // auth: parsedArgs["--auth"] || false,
+      };
+    } catch(err) {
+      this.handleErrors(err.message);
     }
 
-    return {
-      projectDirectory: pathToDirectory,
-      db: parsedArgs["--db"] || "",
-      testing: parsedArgs["--testing"] || "",
-      // auth: parsedArgs["--auth"] || false,
-      template: parsedArgs["--template"] || "",
+  };
+
+  // Map arguments to respective values
+  private mapArguments(parsedArgs: any): IMapParsedArguments {
+    const DB: string[] = [];
+    const LANGUAGE: string[] = [];
+    const TESTING_LIBRARY: string[] = [];
+    
+    // If default argument is selected - add default values :)
+    if (parsedArgs["--default"]) {
+      console.log();
+      console.log(chalk.bold("Creating default project template: JavaScript, MongoDB with Jest testing library."));
+      console.log();
+      
+      LANGUAGE.push("javascript");
+      DB.push("mongodb");
+      TESTING_LIBRARY.push("jest");
+    } else {
+
+      // Map arguments to an array of their respective values
+      for(const [key] of Object.entries(parsedArgs)) {
+        switch(key) {
+          case "--mongodb":
+            DB.push("mongodb");
+            break;
+          case "--postgresql":
+            DB.push("postgresql");
+            break;
+          case "--mysql":
+            DB.push("mysql");
+            break;
+          case "--javascript":
+            LANGUAGE.push("javascript");
+            break;
+          case "--typescript":
+            LANGUAGE.push("typescript");
+            break;
+          case "--jest":
+            TESTING_LIBRARY.push("jest");
+            break;
+          case "--mocha":
+            TESTING_LIBRARY.push("mocha");
+            break;
+          case "--chai":
+            TESTING_LIBRARY.push("chai");
+            break;
+        }
+      }
+
     };
 
-  } 
+    // Check if there are more arguments than there should be based on argument category
+    if (DB.length > 1 || LANGUAGE.length > 1 || TESTING_LIBRARY.length > 1) {
+      this.handleErrors("Invalid number of arguments provided.");
+    }
+
+    return { DB, LANGUAGE, TESTING_LIBRARY };
+  }
 
   // Formats the path to the directory where we want the project created
   private async formatPath(directoryPath: string): Promise<string> {
@@ -79,31 +135,15 @@ class Arguments {
     return fullPath;
   }
 
-  // Handle potential invalid arguments
-  private handleInvalidArguments(parsedArguments: Object): string[] {
-    const supportedDBs: string[] = ["mongodb", "mysql", "postgresql"];
-    const supportedTestingLibraries: string[] = ["jest", "mocha", "chai"];
-    const supportedLanguageTemplates: string[] = ["javascript", "typescript"];
+  // Handle potential errors
+  private handleErrors(errorMessage: string): void {
+    console.log(chalk.red.bold("ERROR:"), errorMessage);
+    console.log();
+    console.log(chalk.bold("See --help for more information."));
+    console.log();
+    console.log(chalk.bgBlue.white.bold("Exiting application..."));
 
-    const errors: string[] = [];
-
-    for(const [key, value] of Object.entries(parsedArguments)) {
-
-      switch(true) {
-        case key === "--db" && !supportedDBs.includes(value):
-          errors.push("Unsupported type of database.");
-          break;
-        case key === "--testing" && !supportedTestingLibraries.includes(value):
-          errors.push("Unsupported type of testing library.");
-          break;
-        case key === "--template" && !supportedLanguageTemplates.includes(value):
-          errors.push("Unsupported language template.");
-          break;
-      }
-
-    }
-
-    return errors;
+    process.exit(1);
   }
 }
 
