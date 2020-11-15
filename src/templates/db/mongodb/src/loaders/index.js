@@ -1,5 +1,5 @@
-const expressApp = require("./express");
-const connectMongoose = require("./mongoose");
+const expressApp = require("express");
+const connectMongoose = require("mongoose");
 
 async function loader(app) {
     // Establish connection to the express server
