@@ -5,3 +5,9 @@ export default interface IParseArguments {
   testing: string,
   // auth: boolean;
 }
+
+export interface IMapParsedArguments {
+  DB: string[];
+  LANGUAGE: string[];
+  TESTING_LIBRARY: string[];
+}
