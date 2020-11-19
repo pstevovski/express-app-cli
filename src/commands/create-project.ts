@@ -14,13 +14,36 @@ import { IProjectConfigTemplates, IProjectCreate, ITemplateDirectories } from ".
 
 const copy = promisify(ncp);
 const access = promisify(fs.access);
+const stat = promisify(fs.stat);
 
 class ProjectTemplate {
     private _currentFileURL = __dirname;
 
     public async create(details: IProjectCreate, directory: string) {
-        await this.copyFiles(details, directory);
-        await this.createFiles(details, directory);
+        const fileExists: boolean = await this.checkSelectedDirectory(directory);
+
+        if (fileExists) {
+            // TODO: Make an error handling class and move every error handling function there 
+            console.log();
+            console.log(chalk.red.bold("ERROR: "), "package.json already exists in this folder !");
+            console.log();
+
+            process.exit(1);
+        } else {
+            await this.copyFiles(details, directory);
+            await this.createFiles(details, directory);
+        }
+    }
+
+    // Checks the selected directory for a package.json - if it exists, it exits the application
+    private async checkSelectedDirectory(directory: string): Promise<boolean> {
+        try {
+            await stat(`${directory}\\package.json`);
+
+            return true;
+        } catch(err) {
+            return false;
+        }
     }
     
     // Copy main template project files
