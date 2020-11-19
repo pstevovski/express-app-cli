@@ -4,6 +4,8 @@ You should never write your bussiness logic in the route controllers (route file
 
 Write your business logic in the **services** that you create in this folder, so your route controllers will be concise, easy to read and understand, and easy to test.
 
+> **NOTE**: The example is in vanilla JavaScript. If you're using TypeScript, you probably already know what to do :)
+
 Example:
 ```js
 // An example of a Service for creating new users - UsersService.js
