@@ -5,7 +5,9 @@ import fs from "fs";
 import chalk from "chalk";
 import fse from "fs-extra";
 
-import { config_js, config_ts, env, gitignore } from "../templates/files/text_templates";
+import { config_js, config_ts } from "../templates/files/config";
+import { env } from "../templates/files/env";
+import { gitignore } from "../templates/files/gitignore";
 
 // Interfaces
 import { IProjectConfigTemplates, IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
