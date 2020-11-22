@@ -13,6 +13,14 @@ const environment: string = (process.env.NODE_ENV || "development").toUpperCase(
 export default {
     PORT: process.env.PORT || 3000,
     ${options.db === "mongodb" ? 'MONGODB_URI: process.env[`MONGODB_URI_${environment}`] || "mongodb://localhost/exampleDb"' : ''}
+    ${options.db === "postgresql" || options.db === "mysql" ? `
+    DB: process.env.DB,
+    DB_USER: process.env.DB_USER,
+    DB_HOST: process.env.DB_HOST,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    DB_PORT: process.env.DB_PORT
+    ` : ""}
+
 }`;
 
 export const config_js = (options: Partial<IProjectConfigTemplates>) => `// Handles the usage of .env files
@@ -24,4 +32,11 @@ const environment = (process.env.NODE_ENV || "development").toUpperCase();
 module.exports = {
     PORT: process.env.PORT || 3000,
     ${options.db === "mongodb" ? 'MONGODB_URI: process.env[`MONGODB_URI_${environment}`] || "mongodb://localhost/exampleDb"' : "" }
+    ${options.db === "postgresql" || options.db === "mysql" ? `
+    DB: process.env.DB,
+    DB_USER: process.env.DB_USER,
+    DB_HOST: process.env.DB_HOST,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    DB_PORT: process.env.DB_PORT
+    ` : ""}
 }`;
