@@ -6,7 +6,6 @@ import chalk from "chalk";
 import fse from "fs-extra";
 
 import { config_js, config_ts } from "../templates/files/config";
-import { env } from "../templates/files/env";
 import { gitignore } from "../templates/files/gitignore";
 
 // Interfaces
@@ -84,13 +83,13 @@ class ProjectTemplate {
             await fse.copy(main_files, directory, { overwrite: false });
 
             // Copy files recursively from db template directory to targeted directory and ALLOW overwrite
-            await fse.copy(dbFiles, `${directory}/src/`, {
+            await fse.copy(dbFiles, `${directory}/`, {
                 overwrite: true,
                 filter: async(file: string): Promise<boolean> => {
                     if (template.toLowerCase() === "javascript") {
-                        return (await fse.stat(file)).isDirectory() || file.endsWith(".js") || file.endsWith(".md");
+                        return (await fse.stat(file)).isDirectory() || file.endsWith(".js") || file.endsWith(".md") || file.endsWith(".env");
                     } else {
-                        return (await fse.stat(file)).isDirectory() || file.endsWith(".ts") || file.endsWith(".md");
+                        return (await fse.stat(file)).isDirectory() || file.endsWith(".ts") || file.endsWith(".md") || file.endsWith(".env");
                     }
                 }}
             );
@@ -112,7 +111,7 @@ class ProjectTemplate {
 
         const main_files: string = path.resolve(pathname, `${pathToTemplates}/${template.toLowerCase()}/server`);
 
-        const dbFiles: string = path.resolve(pathname, `${pathToTemplates}/db/${db.toLowerCase()}/src`);
+        const dbFiles: string = path.resolve(pathname, `${pathToTemplates}/db/${db.toLowerCase()}`);
 
         // Copy default files and include tests folder if user selected testing option
         const default_files: string = path.resolve(pathname, `${pathToTemplates}/default`);
@@ -131,7 +130,7 @@ class ProjectTemplate {
 
         // Create and write each file
         await this.createConfigFile(template, db, directory);
-        await this.createENVFile(db, directory);
+        // await this.createENVFile(db, directory);
         await this.createGitignoreFile(template, testing, directory);
     };
 
@@ -156,14 +155,6 @@ class ProjectTemplate {
         // Create and write in the configuration file
         fs.writeFileSync(file_path, config_content);
     };
-
-    // Creates the .ENV file that stores data that should never be made publicly available
-    private createENVFile(db: string, directory: string): void {
-        const env_path: string = `${directory}/.env`;
-        const env_content: string = env({ db });
-
-        fs.writeFileSync(env_path, env_content);
-    }
 
     // Creates the .gitignore file that marks which files and folders to be ignored by Git
     private createGitignoreFile(template: string, testing: string, directory: string): void {
