@@ -21,7 +21,7 @@ class Arguments {
 
           // database arguments
           "--mongodb": Boolean,
-          "--postgresql": Boolean,
+          "--postgres": Boolean,
           "--mysql": Boolean,
 
           // testing arguments
@@ -86,8 +86,8 @@ class Arguments {
           case "--mongodb":
             DB.push("mongodb");
             break;
-          case "--postgresql":
-            DB.push("postgresql");
+          case "--postgres":
+            DB.push("postgres");
             break;
           case "--mysql":
             DB.push("mysql");
