@@ -47,11 +47,15 @@ class ProjectTemplate {
     
     // Copy main template project files
     private async copyFiles(details: IProjectCreate, directory: string): Promise<void> {
-        const { template, db, testing } = details;
+        let { template, db, testing } = details;
 
         console.log(chalk.blueBright.bold("Creating project directory..."));
 
-        const { main_files, dbFiles, default_files } = this.getTemplateDirectory(template, db);
+        // Convert to lowercase - TODO: Refactor, converting to lowercase is present on 2 places atm
+        template = template.toLowerCase();
+        db = db.toLowerCase();
+
+        const { main_files, dbFiles, default_files, defaultSQL } = this.getTemplateDirectory(template, db);
 
         try {
             await access(default_files, fs.constants.R_OK);
@@ -65,21 +69,10 @@ class ProjectTemplate {
                 filter: testing ? undefined : RegExp('tests')
             });
 
-            // if auth is selected:
-            // - copy api/routes/login
-            // - copy middlewares/authentication
-            // - copy middlewares/authorization
-            // - copy .env file that includes JWT secrets
-            // - copy api/routes/users
-            // - copy services/UserService
-            // - copy config/index
-            // add bcrypt, jsonwebtoken as NPM dependencies to be installed
-
-            // const authToCopy = template === "javascript" ? RegExp()
-            // filter: include_auth ? undefined : template === "javascript" ? 
+            // Copy files recursively from default SQL databases folder
+            await fse.copy(defaultSQL, directory, { overwrite: false });
 
             // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
-            // await copy(main_files, directory, { clobber: false });
             await fse.copy(main_files, directory, { overwrite: false });
 
             // Copy files recursively from db template directory to targeted directory and ALLOW overwrite
@@ -111,12 +104,24 @@ class ProjectTemplate {
 
         const main_files: string = path.resolve(pathname, `${pathToTemplates}/${template.toLowerCase()}/server`);
 
-        const dbFiles: string = path.resolve(pathname, `${pathToTemplates}/db/${db.toLowerCase()}`);
+        let dbFiles: string = "";
+
+        switch(true) {
+            case db === "mysql" || db === "postgresql" || db === "mssql" || db === "mariadb":
+                dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/${db}`);
+                break;
+            case db === "mongodb":
+                dbFiles = path.resolve(pathname, `${pathToTemplates}/db/${db}`);
+                break;
+        }
 
         // Copy default files and include tests folder if user selected testing option
         const default_files: string = path.resolve(pathname, `${pathToTemplates}/default`);
 
-        return { main_files, dbFiles, default_files };
+        // Copy default files and folders from the SQL databases folder
+        const defaultSQL: string = path.resolve(pathname, `${pathToTemplates}/db/sql/default`);  
+
+        return { main_files, dbFiles, default_files, defaultSQL };
     }
 
     // Create config/index, .env and .gitignore files
