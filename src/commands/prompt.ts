@@ -1,7 +1,7 @@
 import inquirer, { Answers } from "inquirer";
 import IParseArguments from "../interfaces/IParseArguments";
 
-const promptUser = async ({ template, db, testing }: IParseArguments): Promise<Answers> => {
+const promptUser = async ({ template, db, testing, orm }: IParseArguments): Promise<Answers> => {
   let questions: Answers[] = [];
 
   // If arguments were not passed, prompt the user for answers
@@ -35,14 +35,23 @@ const promptUser = async ({ template, db, testing }: IParseArguments): Promise<A
       when: (answers: Answers) => answers.include_testing
     }
   );
-  
-  // NOTE: Should authentication option be included ? Too many paths to cover... 
-  // if (!auth) questions.push({
-  //   type: "confirm",
-  //   name: "include_auth",
-  //   message: "Would you like to include authentication and authorization?",
-  //   default: "true"
-  // });
+
+  questions.push(
+    {
+      type: "confirm",
+      name: "orm_use",
+      message: "Would you like to include a ORM to use with the selected SQL database?",
+      default: true,
+      when: (answers: Answers) => answers.db === "MySQL" || answers.db === "PostgreSQL"
+    },
+    {
+      type: "list",
+      name: "orm_select",
+      message: "Select the ORM that you'd like to use: ",
+      choices: ["Sequelize", "TypeORM", "Prisma"],
+      when: (answers: Answers) => answers.orm_use
+    }
+  );
 
   const answers: Answers = await inquirer.prompt(questions);
 
@@ -50,7 +59,7 @@ const promptUser = async ({ template, db, testing }: IParseArguments): Promise<A
     template: template || answers.template,
     db: db || answers.db,
     testing: testing || answers.testing_library,
-    // auth: auth || answers.include_auth
+    orm: orm || answers.orm_select
   }
 
   return returnedAnswers;
