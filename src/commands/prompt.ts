@@ -17,7 +17,7 @@ const promptUser = async ({ template, db, testing, orm }: IParseArguments): Prom
     type: "list",
     name: "db",
     message: "Choose the database you would like to be used:",
-    choices: ["MongoDB", "MySQL", "PostgreSQL"]
+    choices: ["MongoDB", "MySQL", "Postgres"]
   });
 
   if (!testing) questions.push(
@@ -36,13 +36,13 @@ const promptUser = async ({ template, db, testing, orm }: IParseArguments): Prom
     }
   );
 
-  questions.push(
+  if (!orm && db !== "mongodb") questions.push(
     {
       type: "confirm",
       name: "orm_use",
       message: "Would you like to include a ORM to use with the selected SQL database?",
       default: true,
-      when: (answers: Answers) => answers.db === "MySQL" || answers.db === "PostgreSQL"
+      when: (answers: Answers) => answers.db === "MySQL" || answers.db === "Postgres"
     },
     {
       type: "list",
@@ -59,7 +59,7 @@ const promptUser = async ({ template, db, testing, orm }: IParseArguments): Prom
     template: template || answers.template,
     db: db || answers.db,
     testing: testing || answers.testing_library,
-    orm: orm || answers.orm_select
+    ...(db !== "mongodb") && { orm: orm || answers.orm_select }
   }
 
   return returnedAnswers;
