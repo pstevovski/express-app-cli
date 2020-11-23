@@ -7,6 +7,7 @@ import fse from "fs-extra";
 
 import { config_js, config_ts } from "../templates/files/config";
 import { gitignore } from "../templates/files/gitignore";
+import { env } from "../templates/files/env";
 
 // Interfaces
 import { IProjectConfigTemplates, IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
@@ -107,7 +108,7 @@ class ProjectTemplate {
         let dbFiles: string = "";
 
         switch(true) {
-            case db === "mysql" || db === "postgresql" || db === "mssql" || db === "mariadb":
+            case db === "mysql" || db === "postgres" || db === "mssql" || db === "mariadb":
                 dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/${db}`);
                 break;
             case db === "mongodb":
@@ -126,25 +127,26 @@ class ProjectTemplate {
 
     // Create config/index, .env and .gitignore files
     private async createFiles(details: IProjectCreate, directory: string) {
-        let { template, db, testing }: IProjectCreate = details;
+        let { template, db, testing, orm }: IProjectCreate = details;
 
         // Convert details to lowercase
         template = template.toLowerCase();
         db = db.toLowerCase();
         testing = testing.toLowerCase();
+        orm = orm.toLowerCase();
 
         // Create and write each file
-        await this.createConfigFile(template, db, directory);
-        // await this.createENVFile(db, directory);
+        await this.createConfigFile(template, db, orm, directory);
+        await this.createENVFile(db, orm, directory);
         await this.createGitignoreFile(template, testing, directory);
     };
 
     // Creates the configuration file
-    private createConfigFile(template: string, db: string, directory: string): void {
+    private createConfigFile(template: string, db: string, orm: string, directory: string): void {
         const file_path: string = `${directory}/src/config/index${template.toLowerCase() === 'javascript' ? '.js' : '.ts'}`;
 
         // Config file content
-        const config_details: IProjectConfigTemplates = { template, db };
+        const config_details: IProjectConfigTemplates = { template, db, orm };
         let config_content: string = "";
 
         // Load configuration file content based on selected details
@@ -160,6 +162,14 @@ class ProjectTemplate {
         // Create and write in the configuration file
         fs.writeFileSync(file_path, config_content);
     };
+
+    // Creates a custom .ENV file if the selected database is of SQL type
+    private createENVFile(db: string, orm: string, directory: string):void {
+        const envPath: string = `${directory}/.env`;
+        const envContent: string = env(db, orm);
+
+        fs.writeFileSync(envPath, envContent);
+    }
 
     // Creates the .gitignore file that marks which files and folders to be ignored by Git
     private createGitignoreFile(template: string, testing: string, directory: string): void {
