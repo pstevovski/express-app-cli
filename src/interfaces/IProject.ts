@@ -15,6 +15,6 @@ export interface IProjectCreate {
 export interface IProjectConfigTemplates {
     template: string;
     db: string;
-    orm: string;
+    orm?: string;
     // auth: string;
 };

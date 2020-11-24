@@ -23,7 +23,7 @@ class ProjectTemplate {
         const fileExists: boolean = await this.checkSelectedDirectory(directory);
 
         if (fileExists) {
-            // TODO: Make an error handling class and move every error handling function there 
+            // TODO: Make an error handling utility function 
             console.log();
             console.log(chalk.red.bold("ERROR: "), "package.json already exists in this folder !");
             console.log();
@@ -93,6 +93,7 @@ class ProjectTemplate {
             return console.log(chalk.blueBright.bold("Files copied."));
 
         } catch (err) {
+            // TODO: Move to a error handling utility function
             console.error(chalk.red.bold("ERROR: "), `${err.message}`);
 
             // Exit the application with an error
@@ -136,21 +137,26 @@ class ProjectTemplate {
         // Convert details to lowercase
         template = template.toLowerCase();
         db = db.toLowerCase();
-        testing = testing.toLowerCase();
-        orm = orm.toLowerCase();
+        
+        if (orm) orm = orm.toLowerCase();
+        if (testing) testing = testing.toLowerCase();
 
         // Create and write each file
-        await this.createConfigFile(template, db, orm, directory);
-        await this.createENVFile(db, orm, directory);
-        await this.createGitignoreFile(template, testing, directory);
+        await this.createConfigFile(template, db, directory, orm);
+        await this.createENVFile(db, directory, orm);
+        await this.createGitignoreFile(template, directory, testing);
     };
 
     // Creates the configuration file
-    private createConfigFile(template: string, db: string, orm: string, directory: string): void {
+    private createConfigFile(template: string, db: string, directory: string, orm?: string): void {
         const file_path: string = `${directory}/src/config/index${template.toLowerCase() === 'javascript' ? '.js' : '.ts'}`;
 
         // Config file content
-        const config_details: IProjectConfigTemplates = { template, db, orm };
+        const config_details: IProjectConfigTemplates = { 
+            template, 
+            db,
+            ...(orm && { orm })
+        };
         let config_content: string = "";
 
         // Load configuration file content based on selected details
@@ -176,9 +182,9 @@ class ProjectTemplate {
     }
 
     // Creates the .gitignore file that marks which files and folders to be ignored by Git
-    private createGitignoreFile(template: string, testing: string, directory: string): void {
+    private createGitignoreFile(template: string, directory: string, testing?: string): void {
         const gitignore_path: string = `${directory}/.gitignore`;
-        const gitignore_content: string = gitignore(template, testing );
+        const gitignore_content: string = gitignore(template, testing);
 
         fs.writeFileSync(gitignore_path, gitignore_content);
     }
