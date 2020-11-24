@@ -5,10 +5,23 @@ export const env = (db: string, orm: string) => `# YOU SHOULD NEVER COMMIT THIS 
 PORT = 3000;
 
 # DB connection details
-DB = example_db
-DB_USER = example_uesr
-DB_PASSWORD = 
-DB_HOST = localhost
-${orm ? `DB_DIALECT = ${db}` : ""}
-${!orm ? `DB_PORT = ${db === "postgres" ? "5432" : "3306"}` : ""}
+
+# Development
+DB_DEVELOPMENT = example_db
+DB_USER_DEVELOPMENT = example_user
+DB_PASSWORD_DEVELOPMENT = 
+DB_HOST_DEVELOPMENT = localhost
+${orm ? `DB_DIALECT = ${db}` : `DB_PORT = ${db === "postgres" ? "5432" : "3306"}`}
+
+# Testing
+DB_TESTING = example_test_db
+DB_USER_TESTING = example_test_user
+DB_PASSWORD_TESTING = 
+DB_HOST_TESTING = localhost
+
+# Production
+# DB_PRODUCTION = example_prod_db
+# DB_USER_PRODUCTION = example_prod_user
+# DB_PASSWORD_PRODUCTION =
+# DB_HOST_PRODUCTION =
 `;
