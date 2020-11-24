@@ -48,15 +48,16 @@ class ProjectTemplate {
     
     // Copy main template project files
     private async copyFiles(details: IProjectCreate, directory: string): Promise<void> {
-        let { template, db, testing } = details;
+        let { template, db, testing, orm } = details;
 
         console.log(chalk.blueBright.bold("Creating project directory..."));
 
         // Convert to lowercase - TODO: Refactor, converting to lowercase is present on 2 places atm
         template = template.toLowerCase();
         db = db.toLowerCase();
+        orm = orm.toLowerCase();
 
-        const { main_files, dbFiles, default_files, defaultSQL } = this.getTemplateDirectory(template, db);
+        const { main_files, dbFiles, default_files, defaultSQL } = this.getTemplateDirectory(template, db, orm);
 
         try {
             await access(default_files, fs.constants.R_OK);
@@ -99,28 +100,31 @@ class ProjectTemplate {
         }
     };
 
-    private getTemplateDirectory(template: string, db: string): ITemplateDirectories {
+    private getTemplateDirectory(template: string, db: string, orm: string): ITemplateDirectories {
         const pathname: string = new URL(this._currentFileURL).pathname;
         const pathToTemplates: string = "../../src/templates";
 
         const main_files: string = path.resolve(pathname, `${pathToTemplates}/${template.toLowerCase()}/server`);
-
-        let dbFiles: string = "";
-
-        switch(true) {
-            case db === "mysql" || db === "postgres" || db === "mssql" || db === "mariadb":
-                dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/${db}`);
-                break;
-            case db === "mongodb":
-                dbFiles = path.resolve(pathname, `${pathToTemplates}/db/${db}`);
-                break;
-        }
 
         // Copy default files and include tests folder if user selected testing option
         const default_files: string = path.resolve(pathname, `${pathToTemplates}/default`);
 
         // Copy default files and folders from the SQL databases folder
         const defaultSQL: string = path.resolve(pathname, `${pathToTemplates}/db/sql/default`);  
+
+        let dbFiles: string = "";
+
+        switch(true) {
+            case orm === "sequelize" || orm === "typeorm" || orm === "prisma":
+                dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/orm/${orm}`);
+                break;
+            case !orm && db !== "mongodb":
+                dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/${db}`);
+                break;
+            case db === "mongodb":
+                dbFiles = path.resolve(pathname, `${pathToTemplates}/db/${db}`);
+                break;
+        }
 
         return { main_files, dbFiles, default_files, defaultSQL };
     }
