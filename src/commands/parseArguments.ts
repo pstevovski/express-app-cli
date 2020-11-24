@@ -126,6 +126,11 @@ class Arguments {
       this.handleErrors("Invalid number of arguments provided.");
     }
 
+    // Handle case in which the user tries to use mongodb with some of the ORM's for a SQL database
+    if (ORM.length === 1 && DB[0] === "mongodb") {
+      this.handleErrors("You can't use an ORM for a SQL database, with MongoDB.");
+    }
+
     return { DB, LANGUAGE, TESTING_LIBRARY, ORM };
   }
 
