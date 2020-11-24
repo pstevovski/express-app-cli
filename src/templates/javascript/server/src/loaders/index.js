@@ -5,8 +5,6 @@ async function loader(app) {
     await expressApp(app);
     console.log("Express server started.")
 
-    // Establish connection to database
-
     // More loaders can be added here...
 };
 

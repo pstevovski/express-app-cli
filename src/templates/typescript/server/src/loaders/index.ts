@@ -2,12 +2,11 @@ import { Application } from "express";
 import expressApp from "./express";
 
 async function loader(app: Application): Promise<void> {
-    // Establish connection to the server
+    // Establish connection to the express server
     await expressApp(app);
     console.log("Express server started...");
 
-    // Other loaders to here.
-    // IMPORTANT: All other loaders must come AFTER the expressApp loader has completed starting the server
+    // More loaders can be added here...
 };
 
 export default loader;
