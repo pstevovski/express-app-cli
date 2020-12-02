@@ -11,7 +11,10 @@ DB_DEVELOPMENT = example_db
 DB_USER_DEVELOPMENT = example_user
 DB_PASSWORD_DEVELOPMENT = 
 DB_HOST_DEVELOPMENT = localhost
-${orm ? `DB_DIALECT = ${db}` : `DB_PORT = ${db === "postgres" ? "5432" : "3306"}`}
+${orm ? 
+orm === "sequelize" ? `DB_DIALECT = ${db}` :
+orm === "typeorm" ? `DB_TYPE = ${db}` : "" :
+`DB_PORT = ${db === "postgres" ? "5432" : "3306"}`}
 
 # Testing
 DB_TESTING = example_test_db
