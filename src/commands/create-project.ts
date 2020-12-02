@@ -143,7 +143,7 @@ class ProjectTemplate {
 
         // Create and write each file
         await this.createConfigFile(template, db, directory, orm);
-        await this.createENVFile(db, directory, orm);
+        await this.createENVFile(db, orm, directory);
         await this.createGitignoreFile(template, directory, testing);
     };
 
