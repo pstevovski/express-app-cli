@@ -32,7 +32,7 @@ class Arguments {
           // ORM for SQL databases
           "--sequelize": Boolean,
           "--typeorm": Boolean,
-          "--prisma": Boolean,
+          // "--prisma": Boolean,
 
           // Shorthands
           "-h": "--help",
@@ -113,9 +113,9 @@ class Arguments {
           case "--typeorm":
             ORM.push("typeorm");
             break;
-          case "--prisma":
-            ORM.push("prisma");
-            break;
+          // case "--prisma":
+          //   ORM.push("prisma");
+          //   break;
         }
       }
 

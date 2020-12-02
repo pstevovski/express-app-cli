@@ -42,13 +42,13 @@ const promptUser = async ({ template, db, testing, orm }: IParseArguments): Prom
       name: "orm_use",
       message: "Would you like to include a ORM to use with the selected SQL database?",
       default: true,
-      when: (answers: Answers) => answers.db === "MySQL" || answers.db === "Postgres"
+      when: (answers: Answers) => answers.db !== "mongodb"
     },
     {
       type: "list",
       name: "orm_select",
       message: "Select the ORM that you'd like to use: ",
-      choices: ["Sequelize", "TypeORM", "Prisma"],
+      choices: ["Sequelize", "TypeORM"],
       when: (answers: Answers) => answers.orm_use
     }
   );
