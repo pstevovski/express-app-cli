@@ -1,7 +1,7 @@
 import inquirer, { Answers } from "inquirer";
 import IParseArguments from "../interfaces/IParseArguments";
 
-const promptUser = async ({ template, db, testing, orm }: IParseArguments): Promise<Answers> => {
+const promptUser = async ({ template, db, testing, orm, engine }: IParseArguments): Promise<Answers> => {
   let questions: Answers[] = [];
 
   // If arguments were not passed, prompt the user for answers
@@ -42,7 +42,7 @@ const promptUser = async ({ template, db, testing, orm }: IParseArguments): Prom
       name: "orm_use",
       message: "Would you like to include a ORM to use with the selected SQL database?",
       default: true,
-      when: (answers: Answers) => answers.db !== "mongodb"
+      when: (answers: Answers) => answers.db !== "MongoDB"
     },
     {
       type: "list",
@@ -52,14 +52,36 @@ const promptUser = async ({ template, db, testing, orm }: IParseArguments): Prom
       when: (answers: Answers) => answers.orm_use
     }
   );
+  
+  // If templating engine was not sent as a argument by the user
+  if (!engine) questions.push(
+    {
+      type: "confirm",
+      name: "engine_use",
+      message: "Would you like to use a templating engine?",
+      default: false
+    },
+    {
+      type: "list",
+      name: "engine",
+      message: "Select a templating engine that you would like to use: ",
+      choices: ["Handlebars", "EJS", "Pug"],
+      when: (answers: Answers) => answers.engine_use
+    }
+  )
 
   const answers: Answers = await inquirer.prompt(questions);
+
+  // Checks if values exist
+  const ORMCheck: boolean = (db && db !== "mongodb") || (answers.db && answers.db !== "MongoDB"); 
+  const engineCheck: boolean = engine || answers.engine;
 
   const returnedAnswers: Answers = {
     template: template || answers.template,
     db: db || answers.db,
     testing: testing || answers.testing_library,
-    ...(db !== "mongodb") && { orm: orm || answers.orm_select }
+    ...(ORMCheck && { orm: orm || answers.orm_select }),
+    ...(engineCheck && { engine: engine || answers.engine })
   }
 
   return returnedAnswers;
