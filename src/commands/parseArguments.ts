@@ -119,8 +119,8 @@ class Arguments {
           case "--typeorm":
             ORM.push("typeorm");
             break;
-          case "--handlebars":
-            ENGINE.push("handlebars");
+          case "--handlebars" || "--hbs":
+            ENGINE.push("hbs");
             break;
           case "--ejs":
             ENGINE.push("ejs");
