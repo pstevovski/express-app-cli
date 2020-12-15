@@ -48,14 +48,16 @@ class ProjectTemplate {
     
     // Copy main template project files
     private async copyFiles(details: IProjectCreate, directory: string): Promise<void> {
-        let { template, db, testing, orm } = details;
+        let { template, db, testing, orm, engine } = details;
 
         console.log(chalk.blueBright.bold("Creating project directory..."));
 
         // Convert to lowercase - TODO: Refactor, converting to lowercase is present on 2 places atm
         template = template.toLowerCase();
         db = db.toLowerCase();
-        orm = orm.toLowerCase();
+
+        if (orm) orm = orm.toLowerCase();
+        if (engine) engine = engine.toLowerCase();
 
         const { main_files, dbFiles, default_files, defaultSQL } = this.getTemplateDirectory(template, db, orm);
 
@@ -88,8 +90,10 @@ class ProjectTemplate {
                     }
                 }}
             );
-            
 
+            // Write to src/loaders/express file if user has selected a tempalting language
+            if (engine) this.appendTemplatingEngine(directory, template, engine);
+            
             return console.log(chalk.blueBright.bold("Files copied."));
 
         } catch (err) {
@@ -101,7 +105,7 @@ class ProjectTemplate {
         }
     };
 
-    private getTemplateDirectory(template: string, db: string, orm: string): ITemplateDirectories {
+    private getTemplateDirectory(template: string, db: string, orm: string | boolean): ITemplateDirectories {
         const pathname: string = new URL(this._currentFileURL).pathname;
         const pathToTemplates: string = "../../src/templates";
 
@@ -116,7 +120,7 @@ class ProjectTemplate {
         let dbFiles: string = "";
 
         switch(true) {
-            case orm === "sequelize" || orm === "typeorm" || orm === "prisma":
+            case orm && orm === "sequelize" || orm && orm === "typeorm" || orm && orm === "prisma":
                 dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/orm/${orm}`);
                 break;
             case !orm && db !== "mongodb":
@@ -187,6 +191,38 @@ class ProjectTemplate {
         const gitignore_content: string = gitignore(template, testing);
 
         fs.writeFileSync(gitignore_path, gitignore_content);
+    }
+
+    // Append the selected View (Templating) engine if selected by user
+    private appendTemplatingEngine(directory: string, template: string, engine: string): void {
+        console.log('template', template);
+
+        const tempalteShorthand: string = template === "javascript" ? "js" : "ts";
+        
+        console.log('template shorthand', tempalteShorthand);
+
+        try {
+            const expressFile: Buffer = fs.readFileSync(`${directory}/src/loaders/express.${tempalteShorthand}`);
+            const fileLinesArray: string[] = expressFile.toString().split("\n");
+            
+            // The lines at which it should insert code
+            fileLinesArray[46] = "    // Selected templating engine";
+            fileLinesArray[47] = `    app.set("view engine", "${engine}")`;
+            fileLinesArray[48] = `    app.set("views", "./views")`;
+            fileLinesArray[49] = "  ";
+
+            // Insert the text
+            const updatedExpressFile: string = fileLinesArray.join("\n");
+            
+            fs.writeFileSync(`${directory}/src/loaders/express.${tempalteShorthand}`, updatedExpressFile);
+
+        } catch (err) {
+            // TODO: Make an error handling utility function 
+            console.error(chalk.red.bold("ERROR: "), `${err.message}`);
+
+            // Exit the application with an error
+            process.exit(1);
+        }
     }
 }
 
