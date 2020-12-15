@@ -92,7 +92,14 @@ class ProjectTemplate {
             );
 
             // Write to src/loaders/express file if user has selected a tempalting language
-            if (engine) this.appendTemplatingEngine(directory, template, engine);
+            if (engine) {
+                // Create a views folder
+                const viewsDirectoryPath: string = `${directory}/views`;
+                fs.mkdirSync(viewsDirectoryPath);
+
+                // Append the Express code for handling the templating engine and views 
+                this.appendTemplatingEngine(directory, template, engine);
+            }
             
             return console.log(chalk.blueBright.bold("Files copied."));
 
@@ -120,7 +127,7 @@ class ProjectTemplate {
         let dbFiles: string = "";
 
         switch(true) {
-            case orm && orm === "sequelize" || orm && orm === "typeorm" || orm && orm === "prisma":
+            case orm && orm === "sequelize" || orm && orm === "typeorm":
                 dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/orm/${orm}`);
                 break;
             case !orm && db !== "mongodb":
@@ -195,14 +202,11 @@ class ProjectTemplate {
 
     // Append the selected View (Templating) engine if selected by user
     private appendTemplatingEngine(directory: string, template: string, engine: string): void {
-        console.log('template', template);
-
         const tempalteShorthand: string = template === "javascript" ? "js" : "ts";
-        
-        console.log('template shorthand', tempalteShorthand);
+        const expressFilePath: string = `${directory}/src/loaders/express.${tempalteShorthand}`;
 
         try {
-            const expressFile: Buffer = fs.readFileSync(`${directory}/src/loaders/express.${tempalteShorthand}`);
+            const expressFile: Buffer = fs.readFileSync(expressFilePath);
             const fileLinesArray: string[] = expressFile.toString().split("\n");
             
             // The lines at which it should insert code
@@ -214,7 +218,7 @@ class ProjectTemplate {
             // Insert the text
             const updatedExpressFile: string = fileLinesArray.join("\n");
             
-            fs.writeFileSync(`${directory}/src/loaders/express.${tempalteShorthand}`, updatedExpressFile);
+            fs.writeFileSync(expressFilePath, updatedExpressFile);
 
         } catch (err) {
             // TODO: Make an error handling utility function 
