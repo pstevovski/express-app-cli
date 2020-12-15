@@ -32,18 +32,23 @@ class Arguments {
           // ORM for SQL databases
           "--sequelize": Boolean,
           "--typeorm": Boolean,
-          // "--prisma": Boolean,
+
+          // templating engines
+          "--handlebars": Boolean,
+          "--pug": Boolean,
+          "--ejs": Boolean,
 
           // Shorthands
           "-h": "--help",
           "-v": "--v",
           "--js": "--javascript",
           "--ts": "--typescript",
+          "--hbs": "--handlebars"
         },
         { argv: args.slice(2) },
       );
 
-      const { DB, LANGUAGE, TESTING_LIBRARY, ORM }: IMapParsedArguments = await this.mapArguments(parsedArgs);
+      const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IMapParsedArguments = await this.mapArguments(parsedArgs);
 
       // Format the path to the targeted directory
       const pathToDirectory: string = await this.formatPath(parsedArgs._[0]); 
@@ -53,8 +58,8 @@ class Arguments {
         db: DB[0],
         testing: TESTING_LIBRARY[0],
         template: LANGUAGE[0],
-        orm: ORM[0]
-        // auth: parsedArgs["--auth"] || false,
+        orm: ORM[0],
+        engine: ENGINE[0]
       };
     } catch(err) {
       this.handleErrors(err.message);
@@ -68,6 +73,7 @@ class Arguments {
     const LANGUAGE: string[] = [];
     const TESTING_LIBRARY: string[] = [];
     const ORM: string[] = [];
+    const ENGINE: string[] = [];
     
     // If default argument is selected - add default values :)
     if (parsedArgs["--default"]) {
@@ -113,16 +119,22 @@ class Arguments {
           case "--typeorm":
             ORM.push("typeorm");
             break;
-          // case "--prisma":
-          //   ORM.push("prisma");
-          //   break;
+          case "--handlebars":
+            ENGINE.push("handlebars");
+            break;
+          case "--ejs":
+            ENGINE.push("ejs");
+            break;
+          case "--pug":
+            ENGINE.push("pug");
+            break;
         }
       }
 
     };
 
     // Check if there are more arguments than there should be based on argument category
-    if (DB.length > 1 || LANGUAGE.length > 1 || TESTING_LIBRARY.length > 1 || ORM.length > 1) {
+    if (DB.length > 1 || LANGUAGE.length > 1 || TESTING_LIBRARY.length > 1 || ORM.length > 1 || ENGINE.length > 1) {
       this.handleErrors("Invalid number of arguments provided.");
     }
 
@@ -131,7 +143,7 @@ class Arguments {
       this.handleErrors("You can't use an ORM for a SQL database, with MongoDB.");
     }
 
-    return { DB, LANGUAGE, TESTING_LIBRARY, ORM };
+    return { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE };
   }
 
   // Formats the path to the directory where we want the project created
