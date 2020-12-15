@@ -4,7 +4,7 @@ export default interface IParseArguments {
   db: string;
   testing: string,
   orm: string;
-  // auth: boolean;
+  engine: string;
 }
 
 export interface IMapParsedArguments {
@@ -12,4 +12,5 @@ export interface IMapParsedArguments {
   LANGUAGE: string[];
   TESTING_LIBRARY: string[];
   ORM: string[];
+  ENGINE: string[];
 }

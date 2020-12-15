@@ -10,11 +10,12 @@ export interface IProjectCreate {
     db: string;
     testing: string;
     orm: string;
+    engine: string;
 }
 
 export interface IProjectConfigTemplates {
     template: string;
     db: string;
     orm?: string;
-    // auth: string;
+    engine?: string;
 };

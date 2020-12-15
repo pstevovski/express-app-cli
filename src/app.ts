@@ -17,10 +17,10 @@ async function startApp(): Promise<void> {
 
   // Prompt the user for answers based on arguments the user has typed
   const answers: Answers = await promptUser(parsedArguments);
-  const { template, db, testing, orm } = answers; 
+  const { template, db, testing, orm, engine } = answers; 
 
   // Creates the project template directory and files
-  await Project.create({ template, db, testing, orm }, parsedArguments.projectDirectory);
+  await Project.create({ template, db, testing, orm, engine }, parsedArguments.projectDirectory);
 
 }
 
