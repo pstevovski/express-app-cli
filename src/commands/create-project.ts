@@ -211,7 +211,7 @@ class ProjectTemplate {
             
             // The lines at which it should insert code
             fileLinesArray[46] = "    // Selected templating engine";
-            fileLinesArray[47] = `    app.set("view engine", "${engine}")`;
+            fileLinesArray[47] = `    app.set("view engine", "${engine === "handlebars" ? "hbs" : engine}")`;
             fileLinesArray[48] = `    app.set("views", "./views")`;
             fileLinesArray[49] = "  ";
 
