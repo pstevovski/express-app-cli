@@ -8,6 +8,9 @@ import ArgumentsHandler from "./commands/parseArguments";
 import initializeGit from "./commands/git";
 import Listr from "listr";
 import chalk from "chalk";
+import { projectInstall } from "pkg-install";
+import execa from "execa";
+import Dependencies from "./commands/dependencies";
 
 async function startApp(): Promise<void> {
   // Parse the arguments that the user enters when calling the applicaiton
@@ -20,6 +23,9 @@ async function startApp(): Promise<void> {
   const answers: Answers = await promptUser(parsedArguments);
   const { template, db, testing, orm, engine } = answers; 
 
+  // Makes a list of dependencies to install based on provided arguments / answers by the user
+  const dependencies = Dependencies.prodDependencies(answers);
+
   const tasks = new Listr([
     {
       title: "Creating project's structure...",
@@ -31,6 +37,18 @@ async function startApp(): Promise<void> {
     {
       title: "Initializing Git...",
       task: () => initializeGit(parsedArguments.projectDirectory)
+    },
+    {
+      title: "Installing dependencies...",
+      task: async () => {
+        await projectInstall({ cwd: parsedArguments.projectDirectory });
+        await execa("npm", ["install", "--save", ...dependencies], { cwd: parsedArguments.projectDirectory });
+
+        // Install development-only dependencies
+        const devDependencies: string[] = Dependencies.devDependencies(answers);
+
+        await execa("npm", ["install", "-D", ...devDependencies], { cwd: parsedArguments.projectDirectory });
+      }
     }
   ]);
 
