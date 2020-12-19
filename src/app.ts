@@ -5,6 +5,7 @@ import { Answers } from "inquirer";
 import IParseArguments from "./interfaces/IParseArguments";
 import Project from "./commands/create-project";
 import ArgumentsHandler from "./commands/parseArguments";
+import initializeGit from "./commands/git";
 
 async function startApp(): Promise<void> {
   console.log("Starting express-app CLI...");
@@ -21,6 +22,9 @@ async function startApp(): Promise<void> {
 
   // Creates the project template directory and files
   await Project.create({ template, db, testing, orm, engine }, parsedArguments.projectDirectory);
+
+  // Initialize Git
+  await initializeGit(parsedArguments.projectDirectory);
 
 }
 
