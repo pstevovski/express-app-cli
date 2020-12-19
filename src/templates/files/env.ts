@@ -2,7 +2,7 @@
 export const env = (db: string, orm: string) => `# YOU SHOULD NEVER COMMIT THIS FILE TO YOUR REPOSITORY.
 
 # Port on which the server will run
-PORT = 3000;
+PORT = 3000
 
 # DB connection details
 
