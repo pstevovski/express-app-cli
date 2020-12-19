@@ -50,8 +50,6 @@ class ProjectTemplate {
     private async copyFiles(details: IProjectCreate, directory: string): Promise<void> {
         let { template, db, testing, orm, engine } = details;
 
-        console.log(chalk.blueBright.bold("Creating project directory..."));
-
         // Convert to lowercase - TODO: Refactor, converting to lowercase is present on 2 places atm
         template = template.toLowerCase();
         db = db.toLowerCase();
@@ -101,8 +99,6 @@ class ProjectTemplate {
                 this.appendTemplatingEngine(directory, template, engine);
             }
             
-            return console.log(chalk.blueBright.bold("Files copied."));
-
         } catch (err) {
             // TODO: Move to a error handling utility function
             console.error(chalk.red.bold("ERROR: "), `${err.message}`);
