@@ -5,10 +5,11 @@ import { Answers } from "inquirer";
 import IParseArguments from "./interfaces/IParseArguments";
 import Project from "./commands/create-project";
 import ArgumentsHandler from "./commands/parseArguments";
+import initializeGit from "./commands/git";
+import Listr from "listr";
+import chalk from "chalk";
 
 async function startApp(): Promise<void> {
-  console.log("Starting express-app CLI...");
-
   // Parse the arguments that the user enters when calling the applicaiton
   const parsedArguments: IParseArguments | undefined = await ArgumentsHandler.parseArguments(process.argv);
 
@@ -19,9 +20,28 @@ async function startApp(): Promise<void> {
   const answers: Answers = await promptUser(parsedArguments);
   const { template, db, testing, orm, engine } = answers; 
 
-  // Creates the project template directory and files
-  await Project.create({ template, db, testing, orm, engine }, parsedArguments.projectDirectory);
+  const tasks = new Listr([
+    {
+      title: "Creating project's structure...",
+      task: () => {
+        console.log("");
+        Project.create({ template, db, testing, orm, engine }, parsedArguments.projectDirectory)
+      }
+    },
+    {
+      title: "Initializing Git...",
+      task: () => initializeGit(parsedArguments.projectDirectory)
+    }
+  ]);
 
+  await tasks.run();
+
+  // TODO: Move to a separate utility function for handling text to be displayed in the CLI 
+  console.log("");
+  console.log(chalk.green.bold("DONE"), "Project has been created!");
+  console.log("");
+
+  process.exit(0);
 }
 
 startApp();
