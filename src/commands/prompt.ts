@@ -17,7 +17,7 @@ const promptUser = async ({ template, db, testing, orm, engine }: IParseArgument
     type: "list",
     name: "db",
     message: "Choose the database you would like to be used:",
-    choices: ["MongoDB", "MySQL", "Postgres"]
+    choices: ["MongoDB", "MySQL", "Postgres", "SQLite"]
   });
 
   if (!testing) questions.push(
@@ -31,7 +31,7 @@ const promptUser = async ({ template, db, testing, orm, engine }: IParseArgument
       type: "list",
       name: "testing_library",
       message: "Choose preferred testing library:",
-      choices: ["Jest", "Mocha", "Chai", "Jasimne"],
+      choices: ["Jest", "Mocha", "Chai"],
       when: (answers: Answers) => answers.include_testing
     }
   );
