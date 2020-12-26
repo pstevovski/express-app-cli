@@ -1,6 +1,7 @@
 import { IProjectConfigTemplates } from "../../interfaces/IProject";
 
 // Create CONFIG file based on template and database
+// TODO: Handle "as X type" for typescript scenario
 export const config_ts = (options: Partial<IProjectConfigTemplates>) => `import dotenv from "dotenv";
 
 // Handles the usage of .env files

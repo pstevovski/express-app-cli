@@ -23,6 +23,7 @@ class Arguments {
           "--mongodb": Boolean,
           "--postgres": Boolean,
           "--mysql": Boolean,
+          "--sqlite": Boolean,
 
           // testing arguments
           "--jest": Boolean,
@@ -43,7 +44,8 @@ class Arguments {
           "-v": "--v",
           "--js": "--javascript",
           "--ts": "--typescript",
-          "--hbs": "--handlebars"
+          "--hbs": "--handlebars",
+          "--pg": "--postgres"
         },
         { argv: args.slice(2) },
       );
@@ -92,11 +94,14 @@ class Arguments {
           case "--mongodb":
             DB.push("mongodb");
             break;
-          case "--postgres":
+          case "--postgres" || "--pg":
             DB.push("postgres");
             break;
           case "--mysql":
             DB.push("mysql");
+            break;
+          case "--sqlite":
+            DB.push("sqlite");
             break;
           case "--javascript":
             LANGUAGE.push("javascript");

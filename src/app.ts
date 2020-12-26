@@ -8,6 +8,8 @@ import ArgumentsHandler from "./commands/parseArguments";
 import initializeGit from "./commands/git";
 import Listr from "listr";
 import chalk from "chalk";
+import { projectInstall } from "pkg-install";
+import DependenciesHandler from "./commands/dependencies";
 
 async function startApp(): Promise<void> {
   // Parse the arguments that the user enters when calling the applicaiton
@@ -31,6 +33,16 @@ async function startApp(): Promise<void> {
     {
       title: "Initializing Git...",
       task: () => initializeGit(parsedArguments.projectDirectory)
+    },
+    {
+      title: "Installing dependencies...",
+      task: async () => {
+        // Install the pre-defined dependencies in the template's package.json file
+        await projectInstall({ cwd: parsedArguments.projectDirectory });
+
+        // Install production and development dependencies based on what the user selected
+        DependenciesHandler.handleDependencies(parsedArguments.projectDirectory, answers);
+      }
     }
   ]);
 

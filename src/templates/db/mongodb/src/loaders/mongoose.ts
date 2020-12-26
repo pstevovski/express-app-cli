@@ -1,4 +1,5 @@
-import mongoose, { Db } from "mongoose";
+import mongoose from "mongoose";
+import { Db } from "mongodb";
 import config from "../config/index";
 
 async function connectMongoose(): Promise<Db> {
