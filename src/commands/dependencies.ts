@@ -4,9 +4,9 @@ import { Answers } from "inquirer";
 class Dependencies {
 
     // Handle the projcet's dependencies
-    public handleDependencies(directory: string, answers: Answers): void {
-        this.prodDependencies(directory, answers);
-        this.devDependencies(directory, answers);
+    public async handleDependencies(directory: string, answers: Answers): Promise<void> {
+        await this.prodDependencies(directory, answers);
+        await this.devDependencies(directory, answers);
     }
 
     // Handle the production dependencies
@@ -84,7 +84,7 @@ class Dependencies {
         }
 
         // Run execa to install the dependencies in the specified directory
-        await execa("npm", ["install", "--save", ...devDependencies], { cwd: directory });
+        await execa("npm", ["install", "-D", ...devDependencies], { cwd: directory });
     }
 
 }
