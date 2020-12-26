@@ -49,7 +49,25 @@ class Dependencies {
         const devDependencies: string[] = [];
 
         // Install types for Mongoose if selected database is MongoDB
-        if (template === "typescript" && db === "mongodb") devDependencies.push("@types/mongoose");
+        if (template === "typescript") {
+            switch(db) {
+                case "mongodb":
+                    devDependencies.push("@types/mongoose");
+                    break;
+                case "postgres":
+                    devDependencies.push("@types/pg");
+                    break;
+                case "mysql":
+                    devDependencies.push("@types/mysql2");
+                    break;
+                case "sqlite":
+                    devDependencies.push("@types/sqlite3");
+                    break;
+                default: 
+                    devDependencies.push("@types/mongoose");
+                    break;
+            }
+        }
 
         // Install Sequelize's Bluebird and Validator types if Sequelize is being used as ORM
         // NOTE: TypeORM handles its required types by itself - no need to install additional types
