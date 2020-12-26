@@ -14,7 +14,7 @@ DB_HOST_DEVELOPMENT = localhost
 ${orm ? 
 orm === "sequelize" ? `DB_DIALECT = ${db}` :
 orm === "typeorm" ? `DB_TYPE = ${db}` : "" :
-`DB_PORT = ${db === "postgres" ? "5432" : "3306"}`}
+`PORT = ${db === "postgres" ? "5432" : "3306"}`}
 
 # Testing
 DB_TESTING = example_test_db
