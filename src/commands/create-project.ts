@@ -135,7 +135,6 @@ class ProjectTemplate {
         
         // Copy config file from
         const configFileType: string = db === "mongodb" ? "mongodb" : "sql";
-        // const extension: string = template === "javascript" ? "js" : "ts";
         const config: string = path.resolve(pathname, `${pathToTemplates}/files/configs/${configFileType}`) 
 
         let dbFiles: string = "";
@@ -166,8 +165,10 @@ class ProjectTemplate {
         if (orm) orm = orm.toLowerCase();
         if (testing) testing = testing.toLowerCase();
 
-        // Create and write each file
-        await this.createENVFile(db, orm, directory);
+        // Create the .env file if an ORM was selected, otherwise use the predefined one
+        if (orm) await this.createENVFile(db, orm, directory);
+
+        // Create the .gitignore f ile
         await this.createGitignoreFile(template, directory, testing);
     };
 
