@@ -3,6 +3,7 @@ export interface ITemplateDirectories {
     dbFiles: string;
     default_files: string;
     defaultSQL: string;
+    config: string;
 }
 
 export interface IProjectCreate {
