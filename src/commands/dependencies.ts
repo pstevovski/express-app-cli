@@ -1,9 +1,16 @@
+import execa from "execa";
 import { Answers } from "inquirer";
 
-class DependenciesHandler {
+class Dependencies {
+
+    // Handle the projcet's dependencies
+    public handleDependencies(directory: string, answers: Answers): void {
+        this.prodDependencies(directory, answers);
+        this.devDependencies(directory, answers);
+    }
 
     // Handle the production dependencies
-    public prodDependencies(answers: Answers): string[] {
+    private async prodDependencies(directory: string, answers: Answers): Promise<void> {
         const { db, orm, engine } = answers;
         const dependencies: string[] = [];
 
@@ -32,13 +39,12 @@ class DependenciesHandler {
         // Add templating engine dependency if specified by the user
         if (engine) dependencies.push(engine);
 
-        console.log("PROD DEPENDENCIES", dependencies);
-
-        return dependencies;
+        // Run execa to install the dependencies in the specified directory
+        await execa("npm", ["install", "--save", ...dependencies], { cwd: directory });
     }
 
     // Handle the development-only dependencies
-    public devDependencies(answers: Answers): string[] {
+    private async devDependencies(directory: string, answers: Answers): Promise<void> {
         const { template, db, testing, orm } = answers;
         const devDependencies: string[] = [];
 
@@ -77,13 +83,12 @@ class DependenciesHandler {
                 break;
         }
 
-        console.log("DEV DEPENDENCIES", devDependencies);
-
-        return devDependencies;
+        // Run execa to install the dependencies in the specified directory
+        await execa("npm", ["install", "--save", ...devDependencies], { cwd: directory });
     }
 
 }
 
-const Dependencies = new DependenciesHandler();
+const DependenciesHandler = new Dependencies();
 
-export default Dependencies;
+export default DependenciesHandler;
