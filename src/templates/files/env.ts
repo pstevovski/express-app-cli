@@ -1,6 +1,5 @@
 // Create ENV file based on selected SQL database and ORM
-export const env = (db: string, orm: string) => `# YOU SHOULD NEVER COMMIT THIS FILE TO YOUR REPOSITORY
-
+export const env = (db: string, orm: string) => `
 # Server Port
 PORT = 3000
 
