@@ -4,9 +4,9 @@ import { Answers } from "inquirer";
 class Dependencies {
 
     // Handle the projcet's dependencies
-    public handleDependencies(directory: string, answers: Answers): void {
-        this.prodDependencies(directory, answers);
-        this.devDependencies(directory, answers);
+    public async handleDependencies(directory: string, answers: Answers): Promise<void> {
+        await this.prodDependencies(directory, answers);
+        await this.devDependencies(directory, answers);
     }
 
     // Handle the production dependencies
@@ -49,7 +49,25 @@ class Dependencies {
         const devDependencies: string[] = [];
 
         // Install types for Mongoose if selected database is MongoDB
-        if (template === "typescript" && db === "mongodb") devDependencies.push("@types/mongoose");
+        if (template === "typescript") {
+            switch(db) {
+                case "mongodb":
+                    devDependencies.push("@types/mongoose");
+                    break;
+                case "postgres":
+                    devDependencies.push("@types/pg");
+                    break;
+                case "mysql":
+                    devDependencies.push("@types/mysql2");
+                    break;
+                case "sqlite":
+                    devDependencies.push("@types/sqlite3");
+                    break;
+                default: 
+                    devDependencies.push("@types/mongoose");
+                    break;
+            }
+        }
 
         // Install Sequelize's Bluebird and Validator types if Sequelize is being used as ORM
         // NOTE: TypeORM handles its required types by itself - no need to install additional types
@@ -84,7 +102,7 @@ class Dependencies {
         }
 
         // Run execa to install the dependencies in the specified directory
-        await execa("npm", ["install", "--save", ...devDependencies], { cwd: directory });
+        await execa("npm", ["install", "-D", ...devDependencies], { cwd: directory });
     }
 
 }

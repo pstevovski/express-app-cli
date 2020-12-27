@@ -5,12 +5,11 @@ import fs from "fs";
 import chalk from "chalk";
 import fse from "fs-extra";
 
-import { config_js, config_ts } from "../templates/files/config";
 import { gitignore } from "../templates/files/gitignore";
 import { env } from "../templates/files/env";
 
 // Interfaces
-import { IProjectConfigTemplates, IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
+import { IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
 
 const copy = promisify(ncp);
 const access = promisify(fs.access);
@@ -57,12 +56,13 @@ class ProjectTemplate {
         if (orm) orm = orm.toLowerCase();
         if (engine) engine = engine.toLowerCase();
 
-        const { main_files, dbFiles, default_files, defaultSQL } = this.getTemplateDirectory(template, db, orm);
+        const { main_files, dbFiles, default_files, defaultSQL, config } = this.getTemplateDirectory(template, db, orm);
 
         try {
             await access(default_files, fs.constants.R_OK);
             await access(main_files, fs.constants.R_OK);
             await access(dbFiles, fs.constants.R_OK);
+            await access(config, fs.constants.R_OK);
             
             // TODO: Replace ncp (copy in this case) with fse.copy()
             // Copy files from the default files template
@@ -70,9 +70,10 @@ class ProjectTemplate {
                 clobber: false,
                 filter: testing ? undefined : RegExp('tests')
             });
-
+            
+            // NOTE: Should it be copied at all when MongoDB is selected?
             // Copy files recursively from default SQL databases folder
-            await fse.copy(defaultSQL, directory, { overwrite: false });
+            if (db !== "mongodb") await fse.copy(defaultSQL, directory, { overwrite: false });
 
             // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
             await fse.copy(main_files, directory, { overwrite: false });
@@ -88,6 +89,18 @@ class ProjectTemplate {
                     }
                 }}
             );
+
+            // Copy files from the configs templates directory
+            await fse.copy(config, `${directory}/src/config`, { 
+                overwrite: true,
+                filter: async(file: string): Promise<boolean> => {
+                    if (template.toLowerCase() === "javascript") {
+                        return (await fse.stat(file)).isDirectory() || file.endsWith(".js")
+                    } else {
+                        return (await fse.stat(file)).isDirectory() || file.endsWith(".ts")
+                    }
+                }
+            });
 
             // Write to src/loaders/express file if user has selected a tempalting language
             if (engine) {
@@ -118,7 +131,11 @@ class ProjectTemplate {
         const default_files: string = path.resolve(pathname, `${pathToTemplates}/default`);
 
         // Copy default files and folders from the SQL databases folder
-        const defaultSQL: string = path.resolve(pathname, `${pathToTemplates}/db/sql/default`);  
+        const defaultSQL: string = path.resolve(pathname, `${pathToTemplates}/db/sql/default`); 
+        
+        // Copy config file from
+        const configFileType: string = db === "mongodb" ? "mongodb" : "sql";
+        const config: string = path.resolve(pathname, `${pathToTemplates}/files/configs/${configFileType}`) 
 
         let dbFiles: string = "";
 
@@ -134,7 +151,7 @@ class ProjectTemplate {
                 break;
         }
 
-        return { main_files, dbFiles, default_files, defaultSQL };
+        return { main_files, dbFiles, default_files, defaultSQL, config };
     }
 
     // Create config/index, .env and .gitignore files
@@ -148,36 +165,11 @@ class ProjectTemplate {
         if (orm) orm = orm.toLowerCase();
         if (testing) testing = testing.toLowerCase();
 
-        // Create and write each file
-        await this.createConfigFile(template, db, directory, orm);
-        await this.createENVFile(db, orm, directory);
+        // Create the .env file if an ORM was selected, otherwise use the predefined one
+        if (orm) await this.createENVFile(db, orm, directory);
+
+        // Create the .gitignore f ile
         await this.createGitignoreFile(template, directory, testing);
-    };
-
-    // Creates the configuration file
-    private createConfigFile(template: string, db: string, directory: string, orm?: string): void {
-        const file_path: string = `${directory}/src/config/index${template.toLowerCase() === 'javascript' ? '.js' : '.ts'}`;
-
-        // Config file content
-        const config_details: IProjectConfigTemplates = { 
-            template, 
-            db,
-            ...(orm && { orm })
-        };
-        let config_content: string = "";
-
-        // Load configuration file content based on selected details
-        switch(template.toLowerCase()) {
-            case "javascript":
-                config_content = config_js(config_details);
-                break;
-            case "typescript":
-                config_content = config_ts(config_details);
-                break;
-        }
-
-        // Create and write in the configuration file
-        fs.writeFileSync(file_path, config_content);
     };
 
     // Creates a custom .ENV file if the selected database is of SQL type

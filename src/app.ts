@@ -41,7 +41,7 @@ async function startApp(): Promise<void> {
         await projectInstall({ cwd: parsedArguments.projectDirectory });
 
         // Install production and development dependencies based on what the user selected
-        DependenciesHandler.handleDependencies(parsedArguments.projectDirectory, answers);
+        await DependenciesHandler.handleDependencies(parsedArguments.projectDirectory, answers);
       }
     }
   ]);

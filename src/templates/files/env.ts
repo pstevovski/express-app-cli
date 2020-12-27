@@ -1,30 +1,29 @@
 // Create ENV file based on selected SQL database and ORM
-export const env = (db: string, orm: string) => `# YOU SHOULD NEVER COMMIT THIS FILE TO YOUR REPOSITORY.
-
-# Port on which the server will run
+export const env = (db: string, orm: string) => `
+# Server Port
 PORT = 3000
 
-# DB connection details
-
-# Development
-DB_DEVELOPMENT = example_db
-DB_USER_DEVELOPMENT = example_user
+# DEVELOPMENT ENVIRONMENT
+DB_DEVELOPMENT =
+DB_PORT_DEVELOPMENT = ${db === "postgres" ? "5432" : "3306"}
+DB_USERNAME_DEVELOPMENT = ${db === "postgres" ? "postgres" : db === "mysql" ? "root" : ""}
 DB_PASSWORD_DEVELOPMENT = 
 DB_HOST_DEVELOPMENT = localhost
-${orm ? 
-orm === "sequelize" ? `DB_DIALECT = ${db}` :
-orm === "typeorm" ? `DB_TYPE = ${db}` : "" :
-`DB_PORT = ${db === "postgres" ? "5432" : "3306"}`}
+${orm === "sequelize" ? `DB_DIALECT = ${db}` : `DB_TYPE = ${db}`}
 
-# Testing
-DB_TESTING = example_test_db
-DB_USER_TESTING = example_test_user
+# TESTING ENVIRONMENT
+DB_TESTING =
+DB_PORT_TESTING = ${db === "postgres" ? "5432" : "3306"}
+DB_USERNAME_TESTING = ${db === "postgres" ? "postgres" : db === "mysql" ? "root" : ""}
 DB_PASSWORD_TESTING = 
 DB_HOST_TESTING = localhost
+${orm === "sequelize" ? `DB_DIALECT = ${db}` : `DB_TYPE = ${db}`}
 
-# Production
-# DB_PRODUCTION = example_prod_db
-# DB_USER_PRODUCTION = example_prod_user
-# DB_PASSWORD_PRODUCTION =
-# DB_HOST_PRODUCTION =
+# PRODUCTION ENVIRONMENT
+DB_PRODUCTION =
+DB_PORT_PRODUCTION = 
+DB_USERNAME_PRODUCTION = 
+DB_PASSWORD_PRODUCTION = 
+DB_HOST_PRODUCTION = 
+${orm === "sequelize" ? `DB_DIALECT = ${db}` : `DB_TYPE = ${db}`}
 `;
