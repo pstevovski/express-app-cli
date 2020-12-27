@@ -1,6 +1,6 @@
 import { Application } from "express";
 import expressApp from "./express";
-import { db } from "../db/index";
+import db from "../db/index";
 
 async function loader(app: Application): Promise<void> {
     // Establish connection to the express server
