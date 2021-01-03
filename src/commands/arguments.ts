@@ -1,11 +1,11 @@
 import arg from "arg";
 import chalk from "chalk";
 import path from "path";
-import IParseArguments, { IMapParsedArguments } from "../interfaces/IParseArguments";
+import { IArgumentsParsed, IArgumentsMapped } from "../interfaces/IArguments";
 
 class Arguments {
 
-  public async parseArguments(args: string[]): Promise<IParseArguments | undefined> {
+  public async parseArguments(args: string[]): Promise<IArgumentsParsed | undefined> {
     // Get the arguments from the user
     try {
       const parsedArgs = arg(
@@ -50,7 +50,7 @@ class Arguments {
         { argv: args.slice(2) },
       );
 
-      const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IMapParsedArguments = await this.mapArguments(parsedArgs);
+      const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IArgumentsMapped = await this.mapArguments(parsedArgs);
 
       // Format the path to the targeted directory
       const pathToDirectory: string = await this.formatPath(parsedArgs._[0]); 
@@ -70,7 +70,7 @@ class Arguments {
   };
 
   // Map arguments to respective values
-  private mapArguments(parsedArgs: any): IMapParsedArguments {
+  private mapArguments(args: any): IArgumentsMapped {
     const DB: string[] = [];
     const LANGUAGE: string[] = [];
     const TESTING_LIBRARY: string[] = [];
@@ -78,7 +78,7 @@ class Arguments {
     const ENGINE: string[] = [];
     
     // If default argument is selected - add default values :)
-    if (parsedArgs["--default"]) {
+    if (args["--default"]) {
       console.log();
       console.log(chalk.bold("Creating default project template: JavaScript, MongoDB with Jest testing library."));
       console.log();
@@ -89,7 +89,7 @@ class Arguments {
     } else {
 
       // Map arguments to an array of their respective values
-      for(const [key] of Object.entries(parsedArgs)) {
+      for(const [key] of Object.entries(args)) {
         const argument = this.removeArgumentPrefix(key);
 
         switch(true) {

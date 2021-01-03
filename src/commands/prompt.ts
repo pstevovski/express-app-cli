@@ -1,7 +1,7 @@
 import inquirer, { Answers } from "inquirer";
-import IParseArguments from "../interfaces/IParseArguments";
+import { IArgumentsParsed } from "../interfaces/IArguments";
 
-const promptUser = async ({ template, db, testing, orm, engine }: IParseArguments): Promise<Answers> => {
+const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsParsed): Promise<Answers> => {
   let questions: Answers[] = [];
 
   // If arguments were not passed, prompt the user for answers

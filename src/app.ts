@@ -2,9 +2,9 @@
 
 import promptUser from "./commands/prompt";
 import { Answers } from "inquirer";
-import IParseArguments from "./interfaces/IParseArguments";
+import { IArgumentsParsed } from "./interfaces/IArguments";
 import Project from "./commands/create-project";
-import ArgumentsHandler from "./commands/parseArguments";
+import ArgumentsHandler from "./commands/arguments";
 import initializeGit from "./commands/git";
 import Listr from "listr";
 import chalk from "chalk";
@@ -13,7 +13,7 @@ import DependenciesHandler from "./commands/dependencies";
 
 async function startApp(): Promise<void> {
   // Parse the arguments that the user enters when calling the applicaiton
-  const parsedArguments: IParseArguments | undefined = await ArgumentsHandler.parseArguments(process.argv);
+  const parsedArguments: IArgumentsParsed | undefined = await ArgumentsHandler.parseArguments(process.argv);
 
   // Handle errors
   if (!parsedArguments) process.exit(1);
