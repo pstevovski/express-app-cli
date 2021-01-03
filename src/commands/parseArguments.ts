@@ -90,52 +90,26 @@ class Arguments {
 
       // Map arguments to an array of their respective values
       for(const [key] of Object.entries(parsedArgs)) {
-        switch(key) {
-          case "--mongodb":
-            DB.push("mongodb");
+        const argument = this.removeArgumentPrefix(key);
+
+        switch(true) {
+          case ["mongodb", "postgres", "mysql", "sqlite"].includes(argument):
+            DB.push(argument);
             break;
-          case "--postgres" || "--pg":
-            DB.push("postgres");
+          case ["javascript", "typescript"].includes(argument):
+            LANGUAGE.push(argument);
             break;
-          case "--mysql":
-            DB.push("mysql");
+          case ["jest", "mocha", "chai"].includes(argument):
+            TESTING_LIBRARY.push(argument);
             break;
-          case "--sqlite":
-            DB.push("sqlite");
+          case ["sequelize", "typeorm"].includes(argument):
+            ORM.push(argument);
             break;
-          case "--javascript":
-            LANGUAGE.push("javascript");
-            break;
-          case "--typescript":
-            LANGUAGE.push("typescript");
-            break;
-          case "--jest":
-            TESTING_LIBRARY.push("jest");
-            break;
-          case "--mocha":
-            TESTING_LIBRARY.push("mocha");
-            break;
-          case "--chai":
-            TESTING_LIBRARY.push("chai");
-            break;
-          case "--sequelize":
-            ORM.push("sequelize");
-            break;
-          case "--typeorm":
-            ORM.push("typeorm");
-            break;
-          case "--handlebars" || "--hbs":
-            ENGINE.push("hbs");
-            break;
-          case "--ejs":
-            ENGINE.push("ejs");
-            break;
-          case "--pug":
-            ENGINE.push("pug");
+          case ["handlebars", "ejs", "pug"].includes(argument):
+            ENGINE.push(argument);
             break;
         }
       }
-
     };
 
     // Check if there are more arguments than there should be based on argument category
@@ -149,6 +123,11 @@ class Arguments {
     }
 
     return { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE };
+  }
+
+  // Removes the -- prefix from the passed arguments
+  private removeArgumentPrefix(argument: string): string {
+    return argument.replace(/(--)/gi, "");
   }
 
   // Formats the path to the directory where we want the project created
