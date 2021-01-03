@@ -46,7 +46,7 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
     },
     {
       type: "list",
-      name: "orm_select",
+      name: "orm",
       message: "Select the ORM that you'd like to use: ",
       choices: ["Sequelize", "TypeORM"],
       when: (answers: Answers) => answers.orm_use
@@ -72,6 +72,11 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
 
   const answers: Answers = await inquirer.prompt(questions);
 
+  // Convert all answer's to lowercase
+  for (const [key, value] of Object.entries(answers)) {
+    answers[key] = typeof value === "string" ? value.toLowerCase() : value;
+  }
+
   // Checks if values exist
   const ORMCheck: boolean = (db && db !== "mongodb") || (answers.db && answers.db !== "MongoDB"); 
   const engineCheck: boolean = engine || answers.engine;
@@ -80,7 +85,7 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
     template: template || answers.template,
     db: db || answers.db,
     testing: testing || answers.testing_library,
-    ...(ORMCheck && { orm: orm || answers.orm_select }),
+    ...(ORMCheck && { orm: orm || answers.orm }),
     ...(engineCheck && { engine: engine || answers.engine })
   }
 
