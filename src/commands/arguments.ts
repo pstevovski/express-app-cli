@@ -40,8 +40,8 @@ class Arguments {
           "--ejs": Boolean,
 
           // Shorthands
-          "-h": "--help",
-          "-v": "--v",
+          "--h": "--help",
+          "--v": "--version",
           "--js": "--javascript",
           "--ts": "--typescript",
           "--hbs": "--handlebars",
@@ -50,6 +50,10 @@ class Arguments {
         { argv: args.slice(2) },
       );
 
+      // Handle Help and Version arguments
+      if (args.includes("--help") || args.includes("--h")) this.handleHelp();
+      if (args.includes("--version") || args.includes("--v")) this.handleVersion();
+
       const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IArgumentsMapped = await this.mapArguments(parsedArgs);
 
       // Format the path to the targeted directory
@@ -57,9 +61,9 @@ class Arguments {
 
       return {
         projectDirectory: pathToDirectory,
+        template: LANGUAGE[0],
         db: DB[0],
         testing: TESTING_LIBRARY[0],
-        template: LANGUAGE[0],
         orm: ORM[0],
         engine: ENGINE[0]
       };
@@ -150,6 +154,72 @@ class Arguments {
     }
 
     return fullPath;
+  }
+
+  // Handle Help argument's message
+  private handleHelp(): void {
+    console.log();
+    console.log(`${chalk.bold("express-app CLI")} is used for fast bootstrapping your NodeJS / Express project.`);
+    console.log();
+    console.log(`This CLI provides multiple options to customize your project such as:
+     - language template
+     - database 
+     - testing library,
+     - ORM (if using a SQL database) 
+     - selecting a templating engine.`
+    );
+    console.log();
+    console.log(`It provides the following arguments to be used by the user:
+
+      ${chalk.bold("Languages")}:
+      --javascript OR --js -> selects Javascript as a language
+      --typescript OR --ts -> selects Typescript as used language
+      
+      ${chalk.bold("Databases")}:
+      --mongodb -> selects MongoDB and Mongoose database and driver
+      --postgres OR --pg -> selects Postgres database
+      --mysql   -> selects MySQL database
+      --sqlite  -> selects SQLite database
+
+      ${chalk.bold("Testing libraries")}:
+      --jest  -> Selects Jest testing library
+      --chai  -> Selects Chai testing library
+      --mocha -> Selects Mocha testing library
+
+      ${chalk.bold("ORM's if a SQL database is selected")}:
+      --sequelize -> Selects Sequelize ORM
+      --typeorm   -> Selects TypeORM 
+
+      ${chalk.bold("Templating Engines")}:
+      --handlebars OR --hbs -> Selects Handlebars templating engine
+      --ejs -> Selects EJS templating engine
+      --pug -> Selects Pug templating engine
+
+      ${chalk.bold("Misc")}:
+      --version OR --v -> Provides the version of the application
+      --help OR --h -> Provides the information regarding the application
+
+    `);
+    console.log();
+    console.log("If used without passing ALL or SPECIFIC arguments, the user will be prompted to answer questions regarding the project.");
+    console.log();
+    console.log(`You can also make use of the ${chalk.bold("--default")} argument that will create a project using:
+      - Javascript
+      - MongoDB
+      - Jest testing library
+    `);
+
+    process.exit(0);
+  }
+
+  // Display current version of the application
+  private handleVersion(): void {
+    const packageJSON = require("../../package.json");
+    
+    console.log();
+    console.log(`v${packageJSON.version}`);
+
+    process.exit(0);
   }
 
   // Handle potential errors
