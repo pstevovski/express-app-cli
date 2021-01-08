@@ -4,6 +4,20 @@ import { IArgumentsParsed } from "../interfaces/IArguments";
 const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsParsed): Promise<Answers> => {
   let questions: Answers[] = [];
 
+  // Checks for prompting user questions
+  const optionalArgumentsExist: boolean = (template && db) && (testing || orm || engine) ? true : false;
+
+  // If any of the optional arguments is passed by the user, use ONLY what was passed as arguments for creating the project
+  if (optionalArgumentsExist) {
+    return {
+      template,
+      db,
+      testing: testing || null,
+      orm: orm || null,
+      engine: engine || null
+    }
+  }
+
   // If arguments were not passed, prompt the user for answers
   if (!template) questions.push({
     type: "list",
@@ -66,9 +80,10 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
       name: "engine",
       message: "Select a templating engine that you would like to use: ",
       choices: ["Handlebars", "EJS", "Pug"],
+      default: false,
       when: (answers: Answers) => answers.engine_use
     }
-  )
+  );
 
   const answers: Answers = await inquirer.prompt(questions);
 
@@ -77,16 +92,12 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
     answers[key] = typeof value === "string" ? value.toLowerCase() : value;
   }
 
-  // Checks if values exist
-  const ORMCheck: boolean = (db && db !== "mongodb") || (answers.db && answers.db !== "MongoDB"); 
-  const engineCheck: boolean = engine || answers.engine;
-
   const returnedAnswers: Answers = {
     template: template || answers.template,
     db: db || answers.db,
     testing: testing || answers.testing_library,
-    ...(ORMCheck && { orm: orm || answers.orm }),
-    ...(engineCheck && { engine: engine || answers.engine })
+    orm: orm || answers.orm,
+    engine: engine || answers.engine
   }
 
   return returnedAnswers;
