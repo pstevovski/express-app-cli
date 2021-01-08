@@ -14,3 +14,6 @@ export interface IArgumentsMapped {
   ORM: string[];
   ENGINE: string[];
 }
+
+
+export type ParseArguments = IArgumentsParsed | undefined;

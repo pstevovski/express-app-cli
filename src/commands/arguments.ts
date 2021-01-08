@@ -1,16 +1,15 @@
 import arg from "arg";
 import chalk from "chalk";
 import path from "path";
-import { IArgumentsParsed, IArgumentsMapped } from "../interfaces/IArguments";
+import { IArgumentsMapped, ParseArguments } from "../interfaces/IArguments";
 
 class Arguments {
 
-  public async parseArguments(args: string[]): Promise<IArgumentsParsed | undefined> {
+  public async parseArguments(args: string[]): Promise<ParseArguments> {
     // Get the arguments from the user
     try {
       const parsedArgs = arg(
         {
-          // "--auth": Boolean,
           "--help": Boolean,
           "--version": Boolean,
           "--default": Boolean,
@@ -81,7 +80,6 @@ class Arguments {
     const ORM: string[] = [];
     const ENGINE: string[] = [];
     
-    // If default argument is selected - add default values :)
     if (args["--default"]) {
       console.log();
       console.log(chalk.bold("Creating default project template: JavaScript, MongoDB with Jest testing library."));
@@ -135,6 +133,7 @@ class Arguments {
   }
 
   // Formats the path to the directory where we want the project created
+  // NOTE: Maybe move to a separate function / class, outside of ArgumentsHandler ?
   private async formatPath(directoryPath: string): Promise<string> {
     let fullPath: string = "";
 
@@ -156,7 +155,7 @@ class Arguments {
     return fullPath;
   }
 
-  // Handle Help argument's message
+  // Handle Help argument's message - TODO: Move to InfoHandler class
   private handleHelp(): void {
     console.log();
     console.log(`${chalk.bold("express-app CLI")} is used for fast bootstrapping your NodeJS / Express project.`);
@@ -212,7 +211,7 @@ class Arguments {
     process.exit(0);
   }
 
-  // Display current version of the application
+  // Display current version of the application - TODO: Move to InfoHandler class
   private handleVersion(): void {
     const packageJSON = require("../../package.json");
     
@@ -222,7 +221,7 @@ class Arguments {
     process.exit(0);
   }
 
-  // Handle potential errors
+  // Handle potential errors - TODO: Move to InfoHandler class
   private handleErrors(errorMessage: string): void {
     console.log(chalk.red.bold("ERROR:"), errorMessage);
     console.log();
