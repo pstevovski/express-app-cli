@@ -1,16 +1,17 @@
 import execa from "execa";
 import { Answers } from "inquirer";
 
+type PackageManager = "npm" | "yarn";
 class Dependencies {
 
     // Handle the projcet's dependencies
-    public async handleDependencies(directory: string, answers: Answers): Promise<void> {
-        await this.prodDependencies(directory, answers);
-        await this.devDependencies(directory, answers);
+    public async handleDependencies(packageManager: PackageManager, directory: string, answers: Answers): Promise<void> {
+        await this.prodDependencies(packageManager, directory, answers);
+        await this.devDependencies(packageManager, directory, answers);
     }
 
     // Handle the production dependencies
-    private async prodDependencies(directory: string, answers: Answers): Promise<void> {
+    private async prodDependencies(packageManager: PackageManager, directory: string, answers: Answers): Promise<void> {
         const { db, orm, engine } = answers;
         const dependencies: string[] = [];
 
@@ -40,11 +41,15 @@ class Dependencies {
         if (engine) dependencies.push(engine);
 
         // Run execa to install the dependencies in the specified directory
-        await execa("npm", ["install", "--save", ...dependencies], { cwd: directory });
+        if (packageManager === "npm") {
+            await execa("npm", ["install", "--save", ...dependencies], { cwd: directory });
+        } else {
+            await execa("yarn", ["add", ...dependencies], { cwd: directory });
+        }
     }
 
     // Handle the development-only dependencies
-    private async devDependencies(directory: string, answers: Answers): Promise<void> {
+    private async devDependencies(packageManager: PackageManager, directory: string, answers: Answers): Promise<void> {
         const { template, db, testing, orm } = answers;
         const devDependencies: string[] = [];
 
@@ -102,7 +107,11 @@ class Dependencies {
         }
 
         // Run execa to install the dependencies in the specified directory
-        await execa("npm", ["install", "-D", ...devDependencies], { cwd: directory });
+        if (packageManager === "npm") {
+            await execa("npm", ["install", "-D", ...devDependencies], { cwd: directory });
+        } else {
+            await execa("yarn", ["add", "--dev", ...devDependencies], { cwd: directory });
+        }
     }
 
 }

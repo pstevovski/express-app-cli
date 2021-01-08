@@ -10,6 +10,7 @@ import Listr from "listr";
 import chalk from "chalk";
 import { projectInstall } from "pkg-install";
 import DependenciesHandler from "./commands/dependencies";
+import execa from "execa";
 
 async function startApp(): Promise<void> {
   // Parse the arguments that the user enters when calling the applicaiton
@@ -35,13 +36,31 @@ async function startApp(): Promise<void> {
       task: () => initializeGit(parsedArguments.projectDirectory)
     },
     {
-      title: "Installing dependencies...",
+      title: "Installing project dependencies using Yarn...",
+      task: async (ctx, task) => {
+        try {
+          await execa("yarn");
+
+          // Install the pre-defined dependencies in the template's package.json file
+          await projectInstall({ cwd: parsedArguments.projectDirectory });
+
+          // Install production and development dependencies based on what the user selected
+          await DependenciesHandler.handleDependencies("yarn", parsedArguments.projectDirectory, answers);
+        } catch(err) {
+          ctx.yarn = false;
+          task.skip("Yarn is not available. Install it via 'npm install -g yarn' .");
+        }
+      }
+    },
+    {
+      title: "Installing project dependencies using NPM...",
+      enabled: ctx => ctx.yarn === false,
       task: async () => {
         // Install the pre-defined dependencies in the template's package.json file
         await projectInstall({ cwd: parsedArguments.projectDirectory });
 
         // Install production and development dependencies based on what the user selected
-        await DependenciesHandler.handleDependencies(parsedArguments.projectDirectory, answers);
+        await DependenciesHandler.handleDependencies("npm", parsedArguments.projectDirectory, answers);
       }
     }
   ]);
