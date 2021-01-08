@@ -80,7 +80,6 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
       name: "engine",
       message: "Select a templating engine that you would like to use: ",
       choices: ["Handlebars", "EJS", "Pug"],
-      default: false,
       when: (answers: Answers) => answers.engine_use
     }
   );
