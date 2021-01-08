@@ -1,16 +1,15 @@
 import arg from "arg";
 import chalk from "chalk";
 import path from "path";
-import IParseArguments, { IMapParsedArguments } from "../interfaces/IParseArguments";
+import { IArgumentsMapped, ParseArguments } from "../interfaces/IArguments";
 
 class Arguments {
 
-  public async parseArguments(args: string[]): Promise<IParseArguments | undefined> {
+  public async parseArguments(args: string[]): Promise<ParseArguments> {
     // Get the arguments from the user
     try {
       const parsedArgs = arg(
         {
-          // "--auth": Boolean,
           "--help": Boolean,
           "--version": Boolean,
           "--default": Boolean,
@@ -40,8 +39,8 @@ class Arguments {
           "--ejs": Boolean,
 
           // Shorthands
-          "-h": "--help",
-          "-v": "--v",
+          "--h": "--help",
+          "--v": "--version",
           "--js": "--javascript",
           "--ts": "--typescript",
           "--hbs": "--handlebars",
@@ -50,16 +49,20 @@ class Arguments {
         { argv: args.slice(2) },
       );
 
-      const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IMapParsedArguments = await this.mapArguments(parsedArgs);
+      // Handle Help and Version arguments
+      if (args.includes("--help") || args.includes("--h")) this.handleHelp();
+      if (args.includes("--version") || args.includes("--v")) this.handleVersion();
+
+      const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IArgumentsMapped = await this.mapArguments(parsedArgs);
 
       // Format the path to the targeted directory
       const pathToDirectory: string = await this.formatPath(parsedArgs._[0]); 
 
       return {
         projectDirectory: pathToDirectory,
+        template: LANGUAGE[0],
         db: DB[0],
         testing: TESTING_LIBRARY[0],
-        template: LANGUAGE[0],
         orm: ORM[0],
         engine: ENGINE[0]
       };
@@ -70,15 +73,14 @@ class Arguments {
   };
 
   // Map arguments to respective values
-  private mapArguments(parsedArgs: any): IMapParsedArguments {
+  private mapArguments(args: any): IArgumentsMapped {
     const DB: string[] = [];
     const LANGUAGE: string[] = [];
     const TESTING_LIBRARY: string[] = [];
     const ORM: string[] = [];
     const ENGINE: string[] = [];
     
-    // If default argument is selected - add default values :)
-    if (parsedArgs["--default"]) {
+    if (args["--default"]) {
       console.log();
       console.log(chalk.bold("Creating default project template: JavaScript, MongoDB with Jest testing library."));
       console.log();
@@ -89,53 +91,27 @@ class Arguments {
     } else {
 
       // Map arguments to an array of their respective values
-      for(const [key] of Object.entries(parsedArgs)) {
-        switch(key) {
-          case "--mongodb":
-            DB.push("mongodb");
+      for(const [key] of Object.entries(args)) {
+        const argument = this.removeArgumentPrefix(key);
+
+        switch(true) {
+          case ["mongodb", "postgres", "mysql", "sqlite"].includes(argument):
+            DB.push(argument);
             break;
-          case "--postgres" || "--pg":
-            DB.push("postgres");
+          case ["javascript", "typescript"].includes(argument):
+            LANGUAGE.push(argument);
             break;
-          case "--mysql":
-            DB.push("mysql");
+          case ["jest", "mocha", "chai"].includes(argument):
+            TESTING_LIBRARY.push(argument);
             break;
-          case "--sqlite":
-            DB.push("sqlite");
+          case ["sequelize", "typeorm"].includes(argument):
+            ORM.push(argument);
             break;
-          case "--javascript":
-            LANGUAGE.push("javascript");
-            break;
-          case "--typescript":
-            LANGUAGE.push("typescript");
-            break;
-          case "--jest":
-            TESTING_LIBRARY.push("jest");
-            break;
-          case "--mocha":
-            TESTING_LIBRARY.push("mocha");
-            break;
-          case "--chai":
-            TESTING_LIBRARY.push("chai");
-            break;
-          case "--sequelize":
-            ORM.push("sequelize");
-            break;
-          case "--typeorm":
-            ORM.push("typeorm");
-            break;
-          case "--handlebars" || "--hbs":
-            ENGINE.push("hbs");
-            break;
-          case "--ejs":
-            ENGINE.push("ejs");
-            break;
-          case "--pug":
-            ENGINE.push("pug");
+          case ["handlebars", "ejs", "pug"].includes(argument):
+            ENGINE.push(argument);
             break;
         }
       }
-
     };
 
     // Check if there are more arguments than there should be based on argument category
@@ -151,7 +127,13 @@ class Arguments {
     return { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE };
   }
 
+  // Removes the -- prefix from the passed arguments
+  private removeArgumentPrefix(argument: string): string {
+    return argument.replace(/(--)/gi, "");
+  }
+
   // Formats the path to the directory where we want the project created
+  // NOTE: Maybe move to a separate function / class, outside of ArgumentsHandler ?
   private async formatPath(directoryPath: string): Promise<string> {
     let fullPath: string = "";
 
@@ -173,7 +155,73 @@ class Arguments {
     return fullPath;
   }
 
-  // Handle potential errors
+  // Handle Help argument's message - TODO: Move to InfoHandler class
+  private handleHelp(): void {
+    console.log();
+    console.log(`${chalk.bold("express-app CLI")} is used for fast bootstrapping your NodeJS / Express project.`);
+    console.log();
+    console.log(`This CLI provides multiple options to customize your project such as:
+     - language template
+     - database 
+     - testing library,
+     - ORM (if using a SQL database) 
+     - selecting a templating engine.`
+    );
+    console.log();
+    console.log(`It provides the following arguments to be used by the user:
+
+      ${chalk.bold("Languages")}:
+      --javascript OR --js -> selects Javascript as a language
+      --typescript OR --ts -> selects Typescript as used language
+      
+      ${chalk.bold("Databases")}:
+      --mongodb -> selects MongoDB and Mongoose database and driver
+      --postgres OR --pg -> selects Postgres database
+      --mysql   -> selects MySQL database
+      --sqlite  -> selects SQLite database
+
+      ${chalk.bold("Testing libraries")}:
+      --jest  -> Selects Jest testing library
+      --chai  -> Selects Chai testing library
+      --mocha -> Selects Mocha testing library
+
+      ${chalk.bold("ORM's if a SQL database is selected")}:
+      --sequelize -> Selects Sequelize ORM
+      --typeorm   -> Selects TypeORM 
+
+      ${chalk.bold("Templating Engines")}:
+      --handlebars OR --hbs -> Selects Handlebars templating engine
+      --ejs -> Selects EJS templating engine
+      --pug -> Selects Pug templating engine
+
+      ${chalk.bold("Misc")}:
+      --version OR --v -> Provides the version of the application
+      --help OR --h -> Provides the information regarding the application
+
+    `);
+    console.log();
+    console.log("If used without passing ALL or SPECIFIC arguments, the user will be prompted to answer questions regarding the project.");
+    console.log();
+    console.log(`You can also make use of the ${chalk.bold("--default")} argument that will create a project using:
+      - Javascript
+      - MongoDB
+      - Jest testing library
+    `);
+
+    process.exit(0);
+  }
+
+  // Display current version of the application - TODO: Move to InfoHandler class
+  private handleVersion(): void {
+    const packageJSON = require("../../package.json");
+    
+    console.log();
+    console.log(`v${packageJSON.version}`);
+
+    process.exit(0);
+  }
+
+  // Handle potential errors - TODO: Move to InfoHandler class
   private handleErrors(errorMessage: string): void {
     console.log(chalk.red.bold("ERROR:"), errorMessage);
     console.log();

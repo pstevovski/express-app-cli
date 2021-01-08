@@ -1,8 +1,22 @@
 import inquirer, { Answers } from "inquirer";
-import IParseArguments from "../interfaces/IParseArguments";
+import { IArgumentsParsed } from "../interfaces/IArguments";
 
-const promptUser = async ({ template, db, testing, orm, engine }: IParseArguments): Promise<Answers> => {
+const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsParsed): Promise<Answers> => {
   let questions: Answers[] = [];
+
+  // Checks for prompting user questions
+  const optionalArgumentsExist: boolean = (template && db) && (testing || orm || engine) ? true : false;
+
+  // If any of the optional arguments is passed by the user, use ONLY what was passed as arguments for creating the project
+  if (optionalArgumentsExist) {
+    return {
+      template,
+      db,
+      testing: testing || null,
+      orm: orm || null,
+      engine: engine || null
+    }
+  }
 
   // If arguments were not passed, prompt the user for answers
   if (!template) questions.push({
@@ -46,7 +60,7 @@ const promptUser = async ({ template, db, testing, orm, engine }: IParseArgument
     },
     {
       type: "list",
-      name: "orm_select",
+      name: "orm",
       message: "Select the ORM that you'd like to use: ",
       choices: ["Sequelize", "TypeORM"],
       when: (answers: Answers) => answers.orm_use
@@ -68,20 +82,21 @@ const promptUser = async ({ template, db, testing, orm, engine }: IParseArgument
       choices: ["Handlebars", "EJS", "Pug"],
       when: (answers: Answers) => answers.engine_use
     }
-  )
+  );
 
   const answers: Answers = await inquirer.prompt(questions);
 
-  // Checks if values exist
-  const ORMCheck: boolean = (db && db !== "mongodb") || (answers.db && answers.db !== "MongoDB"); 
-  const engineCheck: boolean = engine || answers.engine;
+  // Convert all answer's to lowercase
+  for (const [key, value] of Object.entries(answers)) {
+    answers[key] = typeof value === "string" ? value.toLowerCase() : value;
+  }
 
   const returnedAnswers: Answers = {
     template: template || answers.template,
     db: db || answers.db,
     testing: testing || answers.testing_library,
-    ...(ORMCheck && { orm: orm || answers.orm_select }),
-    ...(engineCheck && { engine: engine || answers.engine })
+    orm: orm || answers.orm,
+    engine: engine || answers.engine
   }
 
   return returnedAnswers;

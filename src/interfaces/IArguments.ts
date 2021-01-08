@@ -1,4 +1,4 @@
-export default interface IParseArguments {
+export interface IArgumentsParsed {
   projectDirectory: string;
   template: string;
   db: string;
@@ -7,10 +7,13 @@ export default interface IParseArguments {
   engine: string;
 }
 
-export interface IMapParsedArguments {
+export interface IArgumentsMapped {
   DB: string[];
   LANGUAGE: string[];
   TESTING_LIBRARY: string[];
   ORM: string[];
   ENGINE: string[];
 }
+
+
+export type ParseArguments = IArgumentsParsed | undefined;
