@@ -2,11 +2,11 @@ import ncp from "ncp";
 import { promisify } from "util";
 import path from "path";
 import fs from "fs";
-import chalk from "chalk";
 import fse from "fs-extra";
 
 import { gitignore } from "../templates/files/gitignore";
 import { env } from "../templates/files/env";
+import MessagesHandler from "./messages";
 
 // Interfaces
 import { IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
@@ -22,12 +22,7 @@ class ProjectTemplate {
         const fileExists: boolean = await this.checkSelectedDirectory(directory);
 
         if (fileExists) {
-            // TODO: Make an error handling utility function 
-            console.log();
-            console.log(chalk.red.bold("ERROR: "), "package.json already exists in this folder !");
-            console.log();
-
-            process.exit(1);
+            MessagesHandler.error("package.json already exists in this folder !");
         } else {
             await this.copyFiles(details, directory);
             await this.createFiles(details, directory);
@@ -113,11 +108,7 @@ class ProjectTemplate {
             }
             
         } catch (err) {
-            // TODO: Move to a error handling utility function
-            console.error(chalk.red.bold("ERROR: "), `${err.message}`);
-
-            // Exit the application with an error
-            process.exit(1);
+            MessagesHandler.error(err.message);
         }
     };
 
@@ -209,11 +200,7 @@ class ProjectTemplate {
             fs.writeFileSync(expressFilePath, updatedExpressFile);
 
         } catch (err) {
-            // TODO: Make an error handling utility function 
-            console.error(chalk.red.bold("ERROR: "), `${err.message}`);
-
-            // Exit the application with an error
-            process.exit(1);
+            MessagesHandler.error(err.message);
         }
     }
 }

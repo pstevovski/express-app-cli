@@ -1,11 +1,11 @@
 import execa from "execa";
+import MessagesHandler from "./messages";
 
 async function initializeGit(projectDirectory: string): Promise<void> {
     try {
         await execa('git', ['init'], { cwd: projectDirectory });
     } catch(err) {
-        // TODO: Handle errors trough separate function
-        console.log("GIT INITIALIZE ERROR: ", err.message);
+        MessagesHandler.error(err.message);
     }
 }
 
