@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool, Client } from "pg";
 import config from "../config/index";
 
 export const pool = new Pool({
@@ -8,6 +8,15 @@ export const pool = new Pool({
     password: config.DB_PASSWORD,
     port: config.DB_PORT
 });
+
+const client = new Client({
+    user: config.DB_USER,
+    host: config.DB_HOST,
+    database: config.DB,
+    password: config.DB_PASSWORD,
+    port: config.DB_PORT
+});
+client.connect();
 
 export const query = async(text: string, params: any) => {
     const response = await pool.query(text, params);

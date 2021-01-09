@@ -8,6 +8,7 @@ module.exports = {
     DB: process.env[`DB_${environment}`],
     PORT: process.env.PORT,
     DB_USER: process.env[`DB_USERNAME_${environment}`],
+    DB_PORT: process.env[`DB_PORT_${environment}`],
     DB_HOST: process.env[`DB_HOST_${environment}`],
     DB_PASSWORD: process.env[`DB_PASSWORD_${environment}`],
     DB_DIALECT: process.env.DB_DIALECT

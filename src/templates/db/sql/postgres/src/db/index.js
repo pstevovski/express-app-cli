@@ -6,8 +6,17 @@ const pool = new Pool({
     user: config.DB_USER,
     host: config.DB_HOST,
     password: config.DB_PASSWORD,
-    port: config.DB_PORT,
+    port: config.DB_PORT
 });
+
+const client = new Client({
+    database: config.DB,
+    user: config.DB_USER,
+    host: config.DB_HOST,
+    password: config.DB_PASSWORD,
+    port: config.DB_PORT
+});
+client.connect();
 
 module.exports = {
     pool,
