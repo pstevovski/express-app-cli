@@ -1,27 +1,26 @@
 import chalk from "chalk";
-
+import { Answers } from "inquirer";
 class Messages {
+    private link = 'https://github.com/pecko95/express-app-cli';
+
     // Display error messages
     public error(message: string): void {
         console.log();
-        console.log(chalk.red.bold("❌ ERROR:"), message);
+        console.log(chalk.red("❌ ERROR:"), message);
         console.log();
-        console.log(chalk.bold("See --help for more information."));
+        console.log(`See ${chalk.blueBright('--help')} for more information.`);
         console.log();
 
         // Exit the application with an error
         process.exit(1);
-    }
+    };
 
     // Display success related messages
     public success(message: string): void {
         console.log("");
-        console.log(chalk.green.bold("✅ DONE "), message);
+        console.log(chalk.green("✅ DONE "), message);
         console.log("");
-
-        // Exit the application without error
-        process.exit(0);
-    }
+    };
 
     // Display informataive messages
     public info(message: string): void {
@@ -30,58 +29,91 @@ class Messages {
         console.log();
     };
 
+    // Display message about how to start, watch and build the application, on which port, selected project configuration etc.
+    public projectInfo(answers: Answers): void {
+        const { template, db, orm, engine, testing } = answers;
+
+        console.log("Selected project configuration: ");
+        console.log(chalk.blueBright("- Template:"), template);
+        console.log(chalk.blueBright("- Database:"), db);
+        console.log(chalk.blueBright("- Testing Library:"), testing ?? "none");
+        console.log(chalk.blueBright("- ORM:"), orm && db !== "mongodb" ? orm : db === "mongodb" ? "mongoose" : "none");
+        console.log(chalk.blueBright("- Templating Engine:"), engine ?? "none");
+        console.log();
+        console.log(`You can start the server by running ${chalk.blueBright("'npm run watch'")} which will track any changes and restart the server when needed.`)
+        console.log();
+
+        if (template === "typescript") {
+            console.log(`You can build the project by running ${chalk.blueBright("'npm run build'")}.`)
+            console.log();
+            console.log(`❕ ${chalk.blueBright.bold('NOTE')}: It is recommended that you start and watch the project by using the provided ${chalk.blueBright("'npm run watch'")} command, because running ${chalk.blueBright("'npm run start'")} command will require the project to be built first.`);
+            console.log();
+        }
+
+        console.log(`The server by default starts at ${chalk.blueBright('PORT: 3000')}. You can change this in the .env file.`)
+        console.log();
+        console.log(chalk.bold(`If you have any recommendations for changes, or you've found some bug, please open an issue or a pull request at: ${this.link}`));
+        console.log();
+        console.log("Happy coding !");
+    };
+
     // Display Help related information
     public help(): void {
         console.log();
-        console.log(`${chalk.bold("express-app CLI")} is used for fast bootstrapping your NodeJS / Express project.`);
+        console.log(`${chalk.blueBright.bold("express-app CLI")} is used for fast bootstrapping your NodeJS / Express project.`);
         console.log();
-        console.log(`This CLI provides multiple options to customize your project such as:
-        - language template
-        - database 
-        - testing library,
-        - ORM (if using a SQL database) 
-        - selecting a templating engine.`
-        );
+        console.log(`This CLI provides multiple options to customize your project including:
+    - language template
+    - database 
+    - testing library
+    - ORM (if using a SQL database) 
+    - templating engine`);
         console.log();
-        console.log(`It provides the following arguments to be used by the user:
-
-        ${chalk.bold("Languages")}:
-        --javascript OR --js -> selects Javascript as a language
-        --typescript OR --ts -> selects Typescript as used language
-        
-        ${chalk.bold("Databases")}:
-        --mongodb -> selects MongoDB and Mongoose database and driver
-        --postgres OR --pg -> selects Postgres database
-        --mysql   -> selects MySQL database
-        --sqlite  -> selects SQLite database
-
-        ${chalk.bold("Testing libraries")}:
-        --jest  -> Selects Jest testing library
-        --chai  -> Selects Chai testing library
-        --mocha -> Selects Mocha testing library
-
-        ${chalk.bold("ORM's if a SQL database is selected")}:
-        --sequelize -> Selects Sequelize ORM
-        --typeorm   -> Selects TypeORM 
-
-        ${chalk.bold("Templating Engines")}:
-        --handlebars OR --hbs -> Selects Handlebars templating engine
-        --ejs -> Selects EJS templating engine
-        --pug -> Selects Pug templating engine
-
-        ${chalk.bold("Misc")}:
-        --version OR --v -> Provides the version of the application
-        --help OR --h -> Provides the information regarding the application
-
-        `);
+        console.log("Usage: ")
+        console.log(chalk.blueBright(" $ npx express-app <project-directory> [options]"))
         console.log();
-        console.log("If used without passing ALL or SPECIFIC arguments, the user will be prompted to answer questions regarding the project.");
+        console.log(`Or if installed locally trough ${chalk.blueBright("'npm install -g express-app-cli'")}: `)
+        console.log(chalk.blueBright(" $ express-app <project-directory> [options]"));
         console.log();
-        console.log(`You can also make use of the ${chalk.bold("--default")} argument that will create a project using:
-        - Javascript
-        - MongoDB
-        - Jest testing library
-        `);
+        console.log("Example: ")
+        console.log(chalk.blueBright(" $ express-app example\\ --ts --mongodb --jest"));
+        console.log();
+        console.log("If no arguments are provided, the user will be asked a series of questions regarding the project's structure.")
+        console.log();
+        console.log(`Options include:
+    --default -> Creates a project with: Javascript, MongoDB & Jest
+
+    --javascript -> selects Javascript as a language
+    --typescript -> selects Typescript as a language
+
+    --mongodb  -> selects MongoDB database (& Mongoose)
+    --postgres -> selects Postgres database
+    --mysql    -> selects MySQL database
+    --sqlite   -> selects SQLite database
+
+    --jest  -> Selects Jest testing library
+    --chai  -> Selects Chai testing library
+    --mocha -> Selects Mocha testing library
+
+    --sequelize -> Selects Sequelize ORM
+    --typeorm   -> Selects TypeORM 
+
+    --handlebars -> Selects Handlebars templating engine
+    --ejs -> Selects EJS templating engine
+    --pug -> Selects Pug templating engine
+
+    --version -> Provides the version of the application
+    --help    -> Provides the information regarding the application`);
+        console.log();
+        console.log(`Shorthands: 
+    --v   -> --version
+    --h   -> --help
+    --js  -> --javascript
+    --ts  -> --typescript
+    --pg  -> --postgres
+    --hbs -> --handlebars`);
+        console.log();
+        console.log(chalk.bold(`If you have any recommendations for changes, or you've found some bug, please open an issue or a pull request at: ${this.link}`));
 
         // Exit the application without error
         process.exit(0);

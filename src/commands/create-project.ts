@@ -6,10 +6,10 @@ import fse from "fs-extra";
 
 import { gitignore } from "../templates/files/gitignore";
 import { env } from "../templates/files/env";
+import MessagesHandler from "./messages";
 
 // Interfaces
 import { IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
-import MessagesHandler from "./messages";
 
 const copy = promisify(ncp);
 const access = promisify(fs.access);
@@ -23,8 +23,6 @@ class ProjectTemplate {
 
         if (fileExists) {
             MessagesHandler.error("package.json already exists in this folder !");
-
-            process.exit(1);
         } else {
             await this.copyFiles(details, directory);
             await this.createFiles(details, directory);
@@ -111,9 +109,6 @@ class ProjectTemplate {
             
         } catch (err) {
             MessagesHandler.error(err.message);
-
-            // Exit the application with an error
-            process.exit(1);
         }
     };
 
@@ -206,9 +201,6 @@ class ProjectTemplate {
 
         } catch (err) {
             MessagesHandler.error(err.message);
-
-            // Exit the application with an error
-            process.exit(1);
         }
     }
 }
