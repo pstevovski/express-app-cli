@@ -3,7 +3,6 @@
 **express-app-cli** is an application that bootstraps your NodeJS / Express projects fast and easy.
 
 ## Installing and Using the CLI
---------
 
 In order to use the **express-app-cli** there are multiple options:
 - By using **npx** *(only if you have NPM v5.2+ installed)*:
@@ -14,8 +13,9 @@ In order to use the **express-app-cli** there are multiple options:
 >
 > express-app < project-directory >  [options]
 
+- *Yarn support is yet to be added*.
+
 ## Overview
---------
 
 This CLI accepts multiple options used for configuring the project, such as:
 - language template
@@ -24,9 +24,13 @@ This CLI accepts multiple options used for configuring the project, such as:
 - ORM (if using a SQL-based database. If using MongoDB, then Mongoose is automatically installed)
 - templating engine
 
-It handles installing the pre-defined and specified packages, creating a project structure and initializing Git, so all you have to do is just run `npm run watch` which will start your server (by default its on **PORT 3000**) and watch for any file changes that will trigger server restart, and you're good to go.
+It handles installing the pre-defined and specified packages, creating a project structure and initializing Git, so all you have to do is just run `npm run watch` which will start your server (by default its on `PORT 3000`) and watch for any file changes that will trigger server restart, and you're good to go.
 
 If no arguments are provided, then the user will be asked a series of questions on how to configure the project.
+
+<p align='center'>
+    <img src='./example.gif' width='800' alt='Example'>
+</p>
 
 ### Options
 
@@ -78,7 +82,10 @@ A quick example demonstrating the usage of the CLI:
     # Start and watch the server for any changes
     npm run watch
 
+
 ## Contribution
-If you have any recommendations for what can be improved or added to the CLI, please feel free to open a pull request, following the **feature/** convention if it's a feature to be added or updated. Or if its related to fixing a bug **bugfix/** convention.
+If you have any recommendations for what can be improved or added to the CLI, please feel free to open a pull request.
+
+When creating a new branch please follow the `feature/branch-name` convention if it's a feature to be added or updated. Or if its related to fixing a bug `bugfix/branch-name` convention. All pull requests then will be directed towards the `develop` branch.
 
 If you find any bugs, please open an issue.
