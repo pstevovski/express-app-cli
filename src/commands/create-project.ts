@@ -106,6 +106,9 @@ class ProjectTemplate {
                 // Append the Express code for handling the templating engine and views 
                 this.appendTemplatingEngine(directory, template, engine);
             }
+
+            // Add a "test" command to the package.json file if a testing library was selected
+            if (testing) this.setTestingCommand(directory, testing);
             
         } catch (err) {
             MessagesHandler.error(err.message);
@@ -202,6 +205,28 @@ class ProjectTemplate {
         } catch (err) {
             MessagesHandler.error(err.message);
         }
+    }
+
+    // Sets a test command if a testing library is to be included in the project
+    private setTestingCommand(directory: string, testing: string): void {
+        // Get the package.json file
+        const packageJSON = require(`${directory}/package.json`);
+
+        // Add the test command
+        switch(true) {
+            case testing === "jest":
+                packageJSON.scripts.test = "jest --watchAll --verbose";
+                break;
+            case testing === "mocha":
+                packageJSON.scripts.test = "mocha --watch";
+                break;
+            case testing === "chai":
+                packageJSON.scripts.test = "chai";
+                break;
+        }
+
+        // Update the package.json file
+        fs.writeFileSync(`${directory}/package.json`, JSON.stringify(packageJSON));
     }
 }
 
