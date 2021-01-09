@@ -1,4 +1,4 @@
-const { Pool } = require("pg");
+const { Pool, Client } = require("pg");
 const config = require("../config/index");
 
 const pool = new Pool({
