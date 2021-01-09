@@ -7,10 +7,10 @@ import Project from "./commands/create-project";
 import ArgumentsHandler from "./commands/arguments";
 import initializeGit from "./commands/git";
 import Listr from "listr";
-import chalk from "chalk";
 import { projectInstall } from "pkg-install";
 import DependenciesHandler from "./commands/dependencies";
 import execa from "execa";
+import MessagesHandler from "./commands/messages";
 
 async function startApp(): Promise<void> {
   // Parse the arguments that the user enters when calling the applicaiton
@@ -67,10 +67,7 @@ async function startApp(): Promise<void> {
 
   await tasks.run();
 
-  // TODO: Move to a separate utility function for handling text to be displayed in the CLI 
-  console.log("");
-  console.log(chalk.green.bold("DONE"), "Project has been created!");
-  console.log("");
+  MessagesHandler.success("Project has been created!");
 
   process.exit(0);
 }

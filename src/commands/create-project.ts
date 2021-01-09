@@ -2,7 +2,6 @@ import ncp from "ncp";
 import { promisify } from "util";
 import path from "path";
 import fs from "fs";
-import chalk from "chalk";
 import fse from "fs-extra";
 
 import { gitignore } from "../templates/files/gitignore";
@@ -10,6 +9,7 @@ import { env } from "../templates/files/env";
 
 // Interfaces
 import { IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
+import MessagesHandler from "./messages";
 
 const copy = promisify(ncp);
 const access = promisify(fs.access);
@@ -22,10 +22,7 @@ class ProjectTemplate {
         const fileExists: boolean = await this.checkSelectedDirectory(directory);
 
         if (fileExists) {
-            // TODO: Make an error handling utility function 
-            console.log();
-            console.log(chalk.red.bold("ERROR: "), "package.json already exists in this folder !");
-            console.log();
+            MessagesHandler.error("package.json already exists in this folder !");
 
             process.exit(1);
         } else {
@@ -113,8 +110,7 @@ class ProjectTemplate {
             }
             
         } catch (err) {
-            // TODO: Move to a error handling utility function
-            console.error(chalk.red.bold("ERROR: "), `${err.message}`);
+            MessagesHandler.error(err.message);
 
             // Exit the application with an error
             process.exit(1);
@@ -209,8 +205,7 @@ class ProjectTemplate {
             fs.writeFileSync(expressFilePath, updatedExpressFile);
 
         } catch (err) {
-            // TODO: Make an error handling utility function 
-            console.error(chalk.red.bold("ERROR: "), `${err.message}`);
+            MessagesHandler.error(err.message);
 
             // Exit the application with an error
             process.exit(1);
