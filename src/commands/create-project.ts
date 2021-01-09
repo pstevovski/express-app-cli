@@ -190,12 +190,17 @@ class ProjectTemplate {
         try {
             const expressFile: Buffer = fs.readFileSync(expressFilePath);
             const fileLinesArray: string[] = expressFile.toString().split("\n");
-            
-            // The lines at which it should insert code
-            fileLinesArray[46] = "    // Selected templating engine";
-            fileLinesArray[47] = `    app.set("view engine", "${engine}")`;
-            fileLinesArray[48] = `    app.set("views", "./views")`;
-            fileLinesArray[49] = "  ";
+        
+            // Code to be appended
+            const templatingEngine: string[] = [
+                "    // Selected templating engine", 
+                `    app.set("view engine", "${engine}");`,
+                `    app.set("views", "./views");`,
+                " "
+            ];
+
+            // Append the templating engine strings at the 46th row in the 'express' loader file
+            fileLinesArray.splice(46, 0, ...templatingEngine);
 
             // Insert the text
             const updatedExpressFile: string = fileLinesArray.join("\n");
