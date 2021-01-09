@@ -7,7 +7,6 @@
       "start": "node build/app.js",
       "start-ts": "ts-node src/app.ts",
       "watch": "nodemon src/app.ts",
-      "test": "jest --watchAll --verbose --runInBand",
       "build": "tsc"
     },
     "engines": {
