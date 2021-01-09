@@ -29,7 +29,7 @@ It handles installing the pre-defined and specified packages, creating a project
 If no arguments are provided, then the user will be asked a series of questions on how to configure the project.
 
 <p align='center'>
-    <img src='./example.gif' width='800' alt='Example'>
+    <img src='./example.gif' width='750' height="350" alt='Example'>
 </p>
 
 ### Options
