@@ -26,7 +26,7 @@ class Messages {
     // Display informataive messages
     public info(message: string): void {
         console.log();
-        console.log(chalk.bgBlue.white.bold("INFO: "),  message);
+        console.log(chalk.blueBright.bold("INFO: "),  message);
         console.log();
     };
 
