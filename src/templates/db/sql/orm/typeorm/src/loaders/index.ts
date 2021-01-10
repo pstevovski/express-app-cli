@@ -1,6 +1,6 @@
 import { Application } from "express";
 import expressApp from "./express";
-import db from "./typeorm";
+import connection from "./typeorm";
 
 async function loader(app: Application): Promise<void> {
     // Establish connection to the express server
@@ -8,7 +8,12 @@ async function loader(app: Application): Promise<void> {
     console.log("Express server started...");
 
     // Establish connection to database
-    await db();
+    try {
+        await connection;
+        console.log("Connected to database...");
+    } catch(err) {
+        console.log("ERROR: ", err.message);
+    }
 
     // More loaders can be added here...
 };

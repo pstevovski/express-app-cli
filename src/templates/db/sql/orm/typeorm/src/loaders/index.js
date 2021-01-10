@@ -1,5 +1,5 @@
 const expressApp = require("./express");
-const db = require("./typeorm");
+const connection = require("./typeorm");
 
 async function loader(app) {
     // Establish connection to the express server
@@ -7,7 +7,12 @@ async function loader(app) {
     console.log("Express server started.")
 
     // Establish connection to database
-    await db();
+    try {
+        await connection;
+        console.log("Connected to database...");
+    } catch(err) {
+        console.log("ERROR: ", err.message);
+    }
 
     // More loaders can be added here...
 };
