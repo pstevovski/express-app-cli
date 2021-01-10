@@ -67,6 +67,7 @@ async function startApp(): Promise<void> {
 
   await tasks.run();
 
+  // Display messages about the project
   MessagesHandler.success("Project has been created!");
   MessagesHandler.projectInfo(answers);
 
