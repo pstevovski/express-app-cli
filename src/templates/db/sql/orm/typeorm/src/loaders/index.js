@@ -9,8 +9,9 @@ async function loader(app) {
     // Establish connection to database
     try {
         await connection;
-        console.log("Connected to database...");
+        console.log("Connected to database.");
     } catch(err) {
+        console.log("Couldn't connect to database.")
         console.log("ERROR: ", err.message);
     }
 

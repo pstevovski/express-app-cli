@@ -2,23 +2,25 @@ import ncp from "ncp";
 import { promisify } from "util";
 import path from "path";
 import fs from "fs";
-import fse from "fs-extra";
 
 import { gitignore } from "../templates/files/gitignore";
 import { env } from "../templates/files/env";
 import MessagesHandler from "./messages";
 
 // Interfaces
-import { IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
+import { ProjectDirectories } from "../interfaces/IProject";
+import { ProjectArguments } from "../interfaces/IArguments";
 
-const copy = promisify(ncp);
+// Convert methods in async/await format
+const ncpCopy = promisify(ncp);
 const access = promisify(fs.access);
 const stat = promisify(fs.stat);
 
-class ProjectTemplate {
+class Project {
   private _currentFileURL = __dirname;
 
-  public async create(details: IProjectCreate, directory: string) {
+  // Trigger creating the project if 'package.json' file doesn't exist in selected directory
+  public async create(details: ProjectArguments, directory: string) {
     const fileExists: boolean = await this.checkSelectedDirectory(directory);
 
     if (fileExists) {
@@ -40,11 +42,15 @@ class ProjectTemplate {
     }
   }
 
-  // Copy main template project files
-  private async copyFiles(details: IProjectCreate, directory: string): Promise<void> {
-    const { template, db, testing, orm, engine } = details;
+  // Copy project files
+  private async copyFiles(details: ProjectArguments, directory: string): Promise<void> {
+    const { language, database, testLibrary, orm, templatingEngine } = details;
 
-    const { mainFiles, dbFiles, defaultFiles, defaultSQL, config } = this.getTemplateDirectory(template, db, orm);
+    // If selected template is Javascript, don't copy .ts files. Otherwise, don't copy .js files.
+    const fileExtensionFilter: string = language === "javascript" ? ".ts" : ".js";
+
+    // Get the paths to the template files
+    const { mainFiles, dbFiles, defaultFiles, defaultSQL, config } = this.getTemplateDirectory(language, database, orm);
 
     try {
       await access(defaultFiles, fs.constants.R_OK);
@@ -52,76 +58,65 @@ class ProjectTemplate {
       await access(dbFiles, fs.constants.R_OK);
       await access(config, fs.constants.R_OK);
 
-      // TODO: Replace ncp (copy in this case) with fse.copy()
       // Copy files from the default files template
-      await copy(defaultFiles, directory, {
+      await ncpCopy(defaultFiles, directory, {
         clobber: false,
-        filter: testing ? undefined : RegExp("tests"),
+        filter: (source: string) => {
+          // If testing is selected, copy everything from default folder.
+          // Otherwise, copy everything from the default folder EXCEPT the "tests" folder
+          return testLibrary ? true : source.endsWith("tests") ? false : true;
+        }
       });
 
-      // NOTE: Should it be copied at all when MongoDB is selected?
       // Copy files recursively from default SQL databases folder
-      if (db !== "mongodb") await fse.copy(defaultSQL, directory, { overwrite: false });
+      if (database !== "mongodb") await ncpCopy(defaultSQL, directory, { clobber: false });
 
       // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
-      await fse.copy(mainFiles, directory, { overwrite: false });
+      await ncpCopy(mainFiles, directory, { clobber: false });
 
       // Copy files recursively from db template directory to targeted directory and ALLOW overwrite
-      await fse.copy(dbFiles, `${directory}/`, {
-        overwrite: true,
-        filter: async (file: string): Promise<boolean> => {
-          if (template.toLowerCase() === "javascript") {
-            return (
-              (await fse.stat(file)).isDirectory() ||
-              file.endsWith(".js") ||
-              file.endsWith(".md") ||
-              file.endsWith(".env")
-            );
+      await ncpCopy(dbFiles, `${directory}/`, {
+        clobber: true,
+        filter: (file: string): boolean => {
+          if (fs.lstatSync(file).isDirectory()) {
+            // Copy all database related folders
+            return true;
           } else {
-            return (
-              (await fse.stat(file)).isDirectory() ||
-              file.endsWith(".ts") ||
-              file.endsWith(".md") ||
-              file.endsWith(".env")
-            );
+            // Copy only files matching the extension filter
+            return file.endsWith(fileExtensionFilter) ? false : true;
           }
-        },
+        }
       });
 
       // Copy files from the configs templates directory
-      await fse.copy(config, `${directory}/src/config`, {
-        overwrite: true,
-        filter: async (file: string): Promise<boolean> => {
-          if (template.toLowerCase() === "javascript") {
-            return (await fse.stat(file)).isDirectory() || file.endsWith(".js");
-          } else {
-            return (await fse.stat(file)).isDirectory() || file.endsWith(".ts");
-          }
-        },
+      await ncpCopy(config, `${directory}/src/config`, {
+        clobber: true,
+        filter: (file: string): boolean => file.endsWith(fileExtensionFilter) ? false : true
       });
 
       // Write to src/loaders/express file if user has selected a tempalting language
-      if (engine) {
+      if (templatingEngine) {
         // Create a views folder
         const viewsDirectoryPath: string = `${directory}/views`;
         fs.mkdirSync(viewsDirectoryPath);
 
         // Append the Express code for handling the templating engine and views
-        this.appendTemplatingEngine(directory, template, engine);
+        this.appendTemplatingEngine(directory, language, templatingEngine);
       }
 
       // Add a "test" command to the package.json file if a testing library was selected
-      if (testing) this.setTestingCommand(directory, testing);
+      if (testLibrary) this.setTestingCommand(directory, testLibrary);
     } catch (err) {
       MessagesHandler.error(err.message);
     }
   }
 
-  private getTemplateDirectory(template: string, db: string, orm: string | boolean): ITemplateDirectories {
+  private getTemplateDirectory(language: string, database: string, orm: string): ProjectDirectories {
     const pathname: string = new URL(this._currentFileURL).pathname;
     const pathToTemplates: string = "../../src/templates";
 
-    const mainFiles: string = path.resolve(pathname, `${pathToTemplates}/${template.toLowerCase()}/server`);
+    // Copy the main files from the javascript/typescript template folders
+    const mainFiles: string = path.resolve(pathname, `${pathToTemplates}/${language}/server`);
 
     // Copy default files and include tests folder if user selected testing option
     const defaultFiles: string = path.resolve(pathname, `${pathToTemplates}/default`);
@@ -130,56 +125,56 @@ class ProjectTemplate {
     const defaultSQL: string = path.resolve(pathname, `${pathToTemplates}/db/sql/default`);
 
     // Copy config file from
-    const configFileType: string = db === "mongodb" ? "mongodb" : "sql";
+    const configFileType: string = database === "mongodb" ? "mongodb" : "sql";
     const config: string = path.resolve(pathname, `${pathToTemplates}/files/configs/${configFileType}`);
 
+    // Copy the database files
     let dbFiles: string = "";
-
     switch (true) {
       case (orm && orm === "sequelize") || (orm && orm === "typeorm"):
         dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/orm/${orm}`);
         break;
-      case !orm && db !== "mongodb":
-        dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/${db}`);
+      case !orm && database !== "mongodb":
+        dbFiles = path.resolve(pathname, `${pathToTemplates}/db/sql/${database}`);
         break;
-      case db === "mongodb":
-        dbFiles = path.resolve(pathname, `${pathToTemplates}/db/${db}`);
+      case database === "mongodb":
+        dbFiles = path.resolve(pathname, `${pathToTemplates}/db/${database}`);
         break;
     }
 
     return { mainFiles, dbFiles, defaultFiles, defaultSQL, config };
   }
 
-  // Create config/index, .env and .gitignore files
-  private async createFiles(details: IProjectCreate, directory: string) {
-    const { template, db, testing, orm }: IProjectCreate = details;
+  // Create .env and .gitignore files
+  private async createFiles(details: ProjectArguments, directory: string) {
+    const { language, database, testLibrary, orm }: ProjectArguments = details;
 
     // Create the .env file if an ORM was selected, otherwise use the predefined one
-    if (orm) await this.createENVFile(db, directory);
+    if (orm) await this.createENVFile(database, directory);
 
     // Create the .gitignore f ile
-    await this.createGitignoreFile(template, directory, testing);
+    await this.createGitignoreFile(language, directory, testLibrary);
   }
 
   // Creates a custom .ENV file if the selected database is of SQL type
-  private createENVFile(db: string, directory: string): void {
+  private createENVFile(database: string, directory: string): void {
     const envPath: string = `${directory}/.env`;
-    const envContent: string = env(db);
+    const envContent: string = env(database);
 
     fs.writeFileSync(envPath, envContent);
   }
 
   // Creates the .gitignore file that marks which files and folders to be ignored by Git
-  private createGitignoreFile(template: string, directory: string, testing?: string): void {
+  private createGitignoreFile(language: string, directory: string, testLibrary?: string): void {
     const gitignorePath: string = `${directory}/.gitignore`;
-    const gitignoreContent: string = gitignore(template, testing);
+    const gitignoreContent: string = gitignore(language, testLibrary);
 
     fs.writeFileSync(gitignorePath, gitignoreContent);
   }
 
   // Append the selected View (Templating) engine if selected by user
-  private appendTemplatingEngine(directory: string, template: string, engine: string): void {
-    const tempalteShorthand: string = template === "javascript" ? "js" : "ts";
+  private appendTemplatingEngine(directory: string, language: string, templatingEngine: string): void {
+    const tempalteShorthand: string = language === "javascript" ? "js" : "ts";
     const expressFilePath: string = `${directory}/src/loaders/express.${tempalteShorthand}`;
 
     try {
@@ -187,15 +182,15 @@ class ProjectTemplate {
       const fileLinesArray: string[] = expressFile.toString().split("\n");
 
       // Code to be appended
-      const templatingEngine: string[] = [
+      const templatingEngineArray: string[] = [
         "    // Selected templating engine",
-        `    app.set("view engine", "${engine}");`,
+        `    app.set("view engine", "${templatingEngine}");`,
         `    app.set("views", "./views");`,
         " ",
       ];
 
       // Append the templating engine strings at the 46th row in the 'express' loader file
-      fileLinesArray.splice(46, 0, ...templatingEngine);
+      fileLinesArray.splice(46, 0, ...templatingEngineArray);
 
       // Insert the text
       const updatedExpressFile: string = fileLinesArray.join("\n");
@@ -207,19 +202,19 @@ class ProjectTemplate {
   }
 
   // Sets a test command if a testing library is to be included in the project
-  private setTestingCommand(directory: string, testing: string): void {
+  private setTestingCommand(directory: string, testLibrary: string): void {
     // Get the package.json file
     const packageJSON = require(`${directory}/package.json`);
 
     // Add the test command
     switch (true) {
-      case testing === "jest":
+      case testLibrary === "jest":
         packageJSON.scripts.test = "jest --watchAll --verbose";
         break;
-      case testing === "mocha":
+      case testLibrary === "mocha":
         packageJSON.scripts.test = "mocha --watch";
         break;
-      case testing === "chai":
+      case testLibrary === "chai":
         packageJSON.scripts.test = "chai";
         break;
     }
@@ -229,6 +224,6 @@ class ProjectTemplate {
   }
 }
 
-const Project = new ProjectTemplate();
+const ProjectHandler = new Project();
 
-export default Project;
+export default ProjectHandler;

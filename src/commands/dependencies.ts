@@ -1,8 +1,8 @@
 import execa from "execa";
 import { Answers } from "inquirer";
+import { IDependenciesHandler, PackageManager } from "../interfaces/IDependencies";
 
-type PackageManager = "npm" | "yarn";
-class Dependencies {
+class Dependencies implements IDependenciesHandler {
   // Handle the projcet's dependencies
   public async handleDependencies(packageManager: PackageManager, directory: string, answers: Answers): Promise<void> {
     await this.prodDependencies(packageManager, directory, answers);
@@ -11,11 +11,11 @@ class Dependencies {
 
   // Handle the production dependencies
   private async prodDependencies(packageManager: PackageManager, directory: string, answers: Answers): Promise<void> {
-    const { db, orm, engine } = answers;
+    const { database, orm, templatingEngine } = answers;
     const dependencies: string[] = [];
 
     // Handle database scenarios
-    switch (db) {
+    switch (database) {
       case "mongodb":
         dependencies.push("mongoose");
         break;
@@ -37,7 +37,7 @@ class Dependencies {
     if (orm) dependencies.push(orm);
 
     // Add templating engine dependency if specified by the user
-    if (engine) dependencies.push(engine);
+    if (templatingEngine) dependencies.push(templatingEngine);
 
     // Run execa to install the dependencies in the specified directory
     if (packageManager === "npm") {
@@ -49,12 +49,12 @@ class Dependencies {
 
   // Handle the development-only dependencies
   private async devDependencies(packageManager: PackageManager, directory: string, answers: Answers): Promise<void> {
-    const { template, db, testing, orm } = answers;
+    const { language, database, testLibrary, orm } = answers;
     const devDependencies: string[] = [];
 
     // Install types for Mongoose if selected database is MongoDB
-    if (template === "typescript") {
-      switch (db) {
+    if (language === "typescript") {
+      switch (database) {
         case "mongodb":
           devDependencies.push("@types/mongoose");
           break;
@@ -75,29 +75,29 @@ class Dependencies {
 
     // Install Sequelize's Bluebird and Validator types if Sequelize is being used as ORM
     // NOTE: TypeORM handles its required types by itself - no need to install additional types
-    if (template === "typescript" && orm === "sequelize") devDependencies.push("@types/bluebird", "@types/validator");
+    if (language === "typescript" && orm === "sequelize") devDependencies.push("@types/bluebird", "@types/validator");
 
-    // Handle the selected testing library dependencies
-    switch (testing) {
+    // Handle the selected testLibrary library dependencies
+    switch (testLibrary) {
       case "jest":
         devDependencies.push("jest");
 
         // Include typescript related dependencies
-        if (template === "typescript") devDependencies.push("@types/jest", "ts-jest");
+        if (language === "typescript") devDependencies.push("@types/jest", "ts-jest");
 
         break;
       case "chai":
         devDependencies.push("chai");
 
         // Include typescript related dependencies
-        if (template === "typescript") devDependencies.push("@types/chai");
+        if (language === "typescript") devDependencies.push("@types/chai");
 
         break;
       case "mocha":
         devDependencies.push("mocha");
 
         // Include typescript related dependencies
-        if (template === "typescript") devDependencies.push("@types/mocha");
+        if (language === "typescript") devDependencies.push("@types/mocha");
 
         break;
       default:

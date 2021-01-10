@@ -4,16 +4,18 @@
 
 ## Installing and Using the CLI
 
-To use the CLI, you'll need to install it globally trough:
+To use the CLI, you'll need to install it globally trough **npm**:
 > npm install -g express-app-cli
+
+Or you can use **yarn** aswell:
+> yarn global add express-app-cli
 
 Then you can use by running:
 > express-app < project-directory > [options]
 
-- *Yarn support is yet to be added*.
 - *NPX support is currently not working properly, that will be updated in future release.*
 
-## Overview
+## Overview :eyes:
 
 This CLI accepts multiple options used for configuring the project, such as:
 - language template
@@ -30,7 +32,7 @@ If no arguments are provided, then the user will be asked a series of questions 
     <img src='./example.gif' width='750' height="350" alt='Example'>
 </p>
 
-### Options
+### Options :clipboard:
 
 The list of options include:
 
@@ -64,7 +66,7 @@ The list of options include:
     --version -> Provides the version of the application
     --help    -> Provides the information regarding the application
 
-### Example
+### Example :computer:
 
 A quick example demonstrating the usage of the CLI:
 
@@ -81,7 +83,7 @@ A quick example demonstrating the usage of the CLI:
     npm run watch
 
 
-## Contribution
+## Contribution :construction_worker:
 If you have any recommendations for what can be improved or added to the CLI, please feel free to open a pull request.
 
 When creating a new branch please follow the `feature/branch-name` convention if it's a feature to be added or updated. Or if its related to fixing a bug `bugfix/branch-name` convention. All pull requests then will be directed towards the `develop` branch.

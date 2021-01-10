@@ -1,9 +1,9 @@
 import execa from "execa";
 import MessagesHandler from "./messages";
 
-async function initializeGit(projectDirectory: string): Promise<void> {
+async function initializeGit(directory: string): Promise<void> {
   try {
-    await execa("git", ["init"], { cwd: projectDirectory });
+    await execa("git", ["init"], { cwd: directory });
   } catch (err) {
     MessagesHandler.error(err.message);
   }

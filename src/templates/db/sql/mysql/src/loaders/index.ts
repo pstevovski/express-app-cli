@@ -8,7 +8,13 @@ async function loader(app: Application): Promise<void> {
   console.log("Express server started...");
 
   // Establish connection to database
-  await connectToDB();
+  try {
+    await connectToDB();
+    console.log("Connected to database.");
+  } catch(err) {
+    console.log("Couldn't connect to database.")
+    console.log("ERROR: ", err.message);
+  }
 
   // More loaders can be added here...
 }
