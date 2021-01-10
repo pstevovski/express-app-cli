@@ -116,7 +116,7 @@ class Project {
     const pathToTemplates: string = "../../src/templates";
 
     // Copy the main files from the javascript/typescript template folders
-    const mainFiles: string = path.resolve(pathname, `${pathToTemplates}/${language.toLowerCase()}/server`);
+    const mainFiles: string = path.resolve(pathname, `${pathToTemplates}/${language}/server`);
 
     // Copy default files and include tests folder if user selected testing option
     const defaultFiles: string = path.resolve(pathname, `${pathToTemplates}/default`);
