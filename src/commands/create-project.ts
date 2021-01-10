@@ -160,16 +160,16 @@ class ProjectTemplate {
         if (testing) testing = testing.toLowerCase();
 
         // Create the .env file if an ORM was selected, otherwise use the predefined one
-        if (orm) await this.createENVFile(db, orm, directory);
+        if (orm) await this.createENVFile(db, directory);
 
         // Create the .gitignore f ile
         await this.createGitignoreFile(template, directory, testing);
     };
 
     // Creates a custom .ENV file if the selected database is of SQL type
-    private createENVFile(db: string, orm: string, directory: string):void {
+    private createENVFile(db: string, directory: string):void {
         const envPath: string = `${directory}/.env`;
-        const envContent: string = env(db, orm);
+        const envContent: string = env(db);
 
         fs.writeFileSync(envPath, envContent);
     }
