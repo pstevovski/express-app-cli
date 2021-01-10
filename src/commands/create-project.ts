@@ -2,7 +2,6 @@ import ncp from "ncp";
 import { promisify } from "util";
 import path from "path";
 import fs from "fs";
-import fse from "fs-extra";
 
 import { gitignore } from "../templates/files/gitignore";
 import { env } from "../templates/files/env";
@@ -66,7 +65,7 @@ class ProjectTemplate {
       });
 
       // Copy files recursively from default SQL databases folder
-      if (db !== "mongodb") await fse.copy(defaultSQL, directory, { overwrite: false });
+      if (db !== "mongodb") await ncpCopy(defaultSQL, directory, { clobber: false });
 
       // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
       await ncpCopy(mainFiles, directory, { clobber: false });
@@ -74,7 +73,7 @@ class ProjectTemplate {
       // Copy files recursively from db template directory to targeted directory and ALLOW overwrite
       await ncpCopy(dbFiles, `${directory}/`, {
         clobber: true,
-        filter: (file: string) => {
+        filter: (file: string): boolean => {
           if (fs.lstatSync(file).isDirectory()) {
             // Copy all database related folders
             return true;
@@ -86,15 +85,9 @@ class ProjectTemplate {
       });
 
       // Copy files from the configs templates directory
-      await fse.copy(config, `${directory}/src/config`, {
-        overwrite: true,
-        filter: async (file: string): Promise<boolean> => {
-          if (template.toLowerCase() === "javascript") {
-            return (await fse.stat(file)).isDirectory() || file.endsWith(".js");
-          } else {
-            return (await fse.stat(file)).isDirectory() || file.endsWith(".ts");
-          }
-        },
+      await ncpCopy(config, `${directory}/src/config`, {
+        clobber: true,
+        filter: (file: string): boolean => file.endsWith(fileExtensionFilter) ? false : true
       });
 
       // Write to src/loaders/express file if user has selected a tempalting language
