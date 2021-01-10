@@ -72,7 +72,7 @@ A quick example demonstrating the usage of the CLI:
     mkdir example
 
     # Create the project with the default configuration in the 'example' folder
-    npx express-app-cli example\ --default
+    express-app example\ --default
 
     # Change your current directory to the project's directory 
     cd example\
