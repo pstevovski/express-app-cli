@@ -1,0 +1,28 @@
+{
+  "name": "javascript",
+  "version": "1.0.0",
+  "description": "Descirbe your application",
+  "main": "app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "watch": "nodemon src/app.js"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "helmet": "^4.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "cookie-parser": "^1.4.5",
+    "body-parser": "^1.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "keywords": ["some", "keywords", "here"],
+  "author": "Your name here",
+  "license": "ISC"
+}
