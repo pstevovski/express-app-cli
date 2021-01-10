@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { Answers } from "inquirer";
 class Messages {
-  private link = "https://github.com/pecko95/express-app-cli";
+  private link = "https://github.com/pstevovski/express-app-cli";
 
   // Display error messages
   public error(message: string): void {

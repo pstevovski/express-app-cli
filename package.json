@@ -35,12 +35,12 @@
     "license": "ISC",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/pecko95/express-app-cli.git"
+        "url": "git+https://github.com/pstevovski/express-app-cli.git"
     },
     "bugs": {
-        "url": "git+https://github.com/pecko95/express-app-cli/issues"
+        "url": "git+https://github.com/pstevovski/express-app-cli/issues"
     },
-    "homepage": "https://github.com/pecko95/express-app-cli#readme",
+    "homepage": "https://github.com/pstevovski/express-app-cli#readme",
     "devDependencies": {
         "@types/execa": "^2.0.0",
         "@types/fs-extra": "^9.0.4",
