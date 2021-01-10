@@ -13,7 +13,7 @@ async function loader(app: Application): Promise<void> {
 
     console.log("Connected to database.");
   } catch (err) {
-    console.log("Couldn't connect to database.")
+    console.log("Couldn't connect to database.");
     console.log("ERROR: ", err.message);
   }
 

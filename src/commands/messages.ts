@@ -37,7 +37,10 @@ class Messages {
     console.log(chalk.blueBright("- Template:"), language);
     console.log(chalk.blueBright("- Database:"), database);
     console.log(chalk.blueBright("- Testing Library:"), testLibrary ?? "none");
-    console.log(chalk.blueBright("- ORM:"), orm && database !== "mongodb" ? orm : database === "mongodb" ? "mongoose" : "none");
+    console.log(
+      chalk.blueBright("- ORM:"),
+      orm && database !== "mongodb" ? orm : database === "mongodb" ? "mongoose" : "none",
+    );
     console.log(chalk.blueBright("- Templating Engine:"), templatingEngine ?? "none");
     console.log();
     console.log(

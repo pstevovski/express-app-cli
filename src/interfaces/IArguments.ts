@@ -12,7 +12,9 @@ export interface ProjectArguments {
   templatingEngine: TemlpatingEngineTypes;
 }
 
-export interface ParsedArguments extends ProjectArguments { directory: string; }
+export interface ParsedArguments extends ProjectArguments {
+  directory: string;
+}
 export interface MappedArguments {
   DATABASE: DatabaseTypes[];
   LANGUAGE: LanguageTypes[];

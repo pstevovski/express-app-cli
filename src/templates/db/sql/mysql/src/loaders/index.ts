@@ -11,8 +11,8 @@ async function loader(app: Application): Promise<void> {
   try {
     await connectToDB();
     console.log("Connected to database.");
-  } catch(err) {
-    console.log("Couldn't connect to database.")
+  } catch (err) {
+    console.log("Couldn't connect to database.");
     console.log("ERROR: ", err.message);
   }
 

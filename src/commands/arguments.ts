@@ -4,14 +4,14 @@ import formatPath from "./formatProjectPath";
 import MessagesHandler from "./messages";
 
 // Interfaces
-import { 
-  MappedArguments, 
+import {
+  MappedArguments,
   DatabaseTypes,
-  LanguageTypes, 
-  OrmTypes, 
-  ParseArguments, 
-  TemlpatingEngineTypes, 
-  TestingLibraryTypes 
+  LanguageTypes,
+  OrmTypes,
+  ParseArguments,
+  TemlpatingEngineTypes,
+  TestingLibraryTypes,
 } from "../interfaces/IArguments";
 
 class Arguments {
@@ -64,7 +64,9 @@ class Arguments {
       if (args.includes("--version") || args.includes("--v")) MessagesHandler.version();
 
       // Get the mapped values for the specified arguments
-      const { DATABASE, LANGUAGE, TESTING_LIBRARY, ORM, TEMPLATING_ENGINE }: MappedArguments = this.mapArguments(parsedArgs);
+      const { DATABASE, LANGUAGE, TESTING_LIBRARY, ORM, TEMPLATING_ENGINE }: MappedArguments = this.mapArguments(
+        parsedArgs,
+      );
 
       // Formats the path to the directory where we want the project created
       const pathToDirectory: string = formatPath(parsedArgs._[0]);
@@ -75,9 +77,8 @@ class Arguments {
         database: DATABASE[0],
         testLibrary: TESTING_LIBRARY[0],
         orm: ORM[0],
-        templatingEngine: TEMPLATING_ENGINE[0]
-      }
-
+        templatingEngine: TEMPLATING_ENGINE[0],
+      };
     } catch (err) {
       MessagesHandler.error(err.message);
     }
@@ -123,7 +124,13 @@ class Arguments {
     }
 
     // Check if there are more arguments than there should be based on argument category
-    if (DATABASE.length > 1 || LANGUAGE.length > 1 || TESTING_LIBRARY.length > 1 || ORM.length > 1 || TEMPLATING_ENGINE.length > 1) {
+    if (
+      DATABASE.length > 1 ||
+      LANGUAGE.length > 1 ||
+      TESTING_LIBRARY.length > 1 ||
+      ORM.length > 1 ||
+      TEMPLATING_ENGINE.length > 1
+    ) {
       MessagesHandler.error("Invalid number of arguments provided.");
     }
 

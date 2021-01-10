@@ -65,7 +65,7 @@ class Project {
           // If testing is selected, copy everything from default folder.
           // Otherwise, copy everything from the default folder EXCEPT the "tests" folder
           return testLibrary ? true : source.endsWith("tests") ? false : true;
-        }
+        },
       });
 
       // Copy files recursively from default SQL databases folder
@@ -85,13 +85,13 @@ class Project {
             // Copy only files matching the extension filter
             return file.endsWith(fileExtensionFilter) ? false : true;
           }
-        }
+        },
       });
 
       // Copy files from the configs templates directory
       await ncpCopy(config, `${directory}/src/config`, {
         clobber: true,
-        filter: (file: string): boolean => file.endsWith(fileExtensionFilter) ? false : true
+        filter: (file: string): boolean => (file.endsWith(fileExtensionFilter) ? false : true),
       });
 
       // Write to src/loaders/express file if user has selected a tempalting language

@@ -1,11 +1,18 @@
 import inquirer, { Answers } from "inquirer";
 import { ParsedArguments } from "../interfaces/IArguments";
 
-const promptUser = async ({ language, database, testLibrary, orm, templatingEngine }: ParsedArguments): Promise<Answers> => {
+const promptUser = async ({
+  language,
+  database,
+  testLibrary,
+  orm,
+  templatingEngine,
+}: ParsedArguments): Promise<Answers> => {
   const questions: Answers[] = [];
 
   // If optional arguments are provided (testing, orm, engine) then use only what was provided and dont ask questions
-  const optionalArgumentsExist: boolean = language && database && (testLibrary || orm || templatingEngine) ? true : false;
+  const optionalArgumentsExist: boolean =
+    language && database && (testLibrary || orm || templatingEngine) ? true : false;
 
   // If any of the optional arguments is passed by the user, use ONLY what was passed as arguments for creating the project
   if (optionalArgumentsExist) {
