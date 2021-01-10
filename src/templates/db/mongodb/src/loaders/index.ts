@@ -8,8 +8,13 @@ async function loader(app: Application): Promise<void> {
   console.log("Express server started...");
 
   // Connect to mongoose
-  await connectMongoose();
-  console.log("Connected to Mongoose.");
+  try {
+    await connectMongoose();
+    console.log("Connected to database.");
+  } catch(err) {
+    console.log("Couldn't connect to database.")
+    console.log("ERROR: ", err.message);
+  }
 
   // IMPORTANT: All other loaders must come AFTER the expressApp loader has completed starting the server
 }

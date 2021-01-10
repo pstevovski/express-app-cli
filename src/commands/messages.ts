@@ -31,14 +31,14 @@ class Messages {
 
   // Display message about how to start, watch and build the application, on which port, selected project configuration etc.
   public projectInfo(answers: Answers): void {
-    const { template, db, orm, engine, testing } = answers;
+    const { language, database, orm, templatingEngine, testLibrary } = answers;
 
     console.log("Selected project configuration: ");
-    console.log(chalk.blueBright("- Template:"), template);
-    console.log(chalk.blueBright("- Database:"), db);
-    console.log(chalk.blueBright("- Testing Library:"), testing ?? "none");
-    console.log(chalk.blueBright("- ORM:"), orm && db !== "mongodb" ? orm : db === "mongodb" ? "mongoose" : "none");
-    console.log(chalk.blueBright("- Templating Engine:"), engine ?? "none");
+    console.log(chalk.blueBright("- Template:"), language);
+    console.log(chalk.blueBright("- Database:"), database);
+    console.log(chalk.blueBright("- Testing Library:"), testLibrary ?? "none");
+    console.log(chalk.blueBright("- ORM:"), orm && database !== "mongodb" ? orm : database === "mongodb" ? "mongoose" : "none");
+    console.log(chalk.blueBright("- Templating Engine:"), templatingEngine ?? "none");
     console.log();
     console.log(
       `You can start the server by running ${chalk.blueBright(
@@ -47,7 +47,7 @@ class Messages {
     );
     console.log();
 
-    if (template === "typescript") {
+    if (language === "typescript") {
       console.log(`You can build the project by running ${chalk.blueBright("'npm run build'")}.`);
       console.log();
       console.log(

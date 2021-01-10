@@ -11,9 +11,10 @@ async function loader(app: Application): Promise<void> {
   try {
     await db.authenticate();
 
-    console.log("Database connected...");
+    console.log("Connected to database.");
   } catch (err) {
-    console.log("ERROR: ", err);
+    console.log("Couldn't connect to database.")
+    console.log("ERROR: ", err.message);
   }
 
   // More loaders can be added here...
