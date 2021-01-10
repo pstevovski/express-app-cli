@@ -11,7 +11,7 @@ import MessagesHandler from "./messages";
 // Interfaces
 import { IProjectCreate, ITemplateDirectories } from "../interfaces/IProject";
 
-const copy = promisify(ncp);
+const ncpCopy = promisify(ncp);
 const access = promisify(fs.access);
 const stat = promisify(fs.stat);
 
@@ -52,11 +52,14 @@ class ProjectTemplate {
       await access(dbFiles, fs.constants.R_OK);
       await access(config, fs.constants.R_OK);
 
-      // TODO: Replace ncp (copy in this case) with fse.copy()
       // Copy files from the default files template
-      await copy(defaultFiles, directory, {
+      await ncpCopy(defaultFiles, directory, {
         clobber: false,
-        filter: testing ? undefined : RegExp("tests"),
+        filter: (source: string) => {
+          // If testing is selected, copy everything from default folder.
+          // Otherwise, copy everything from the default folder EXCEPT the "tests" folder
+          return testing ? true : source.endsWith("tests") ? false : true;
+        }
       });
 
       // NOTE: Should it be copied at all when MongoDB is selected?
