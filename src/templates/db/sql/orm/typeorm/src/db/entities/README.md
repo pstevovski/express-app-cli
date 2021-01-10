@@ -37,6 +37,8 @@ typeorm.createConnection({
 ```
 
 **TypeScript:**
+Be sure to activate the **experimentalDecorators** and **emitDecoratorMetadata** fields in the tsconfig.json file.
+
 ```ts
 import { Column, PrimaryGeneratedColumn, Entity } from "typeorm";
 
