@@ -1,6 +1,6 @@
 import arg from "arg";
-import path from "path";
 import { IArgumentsMapped, ParseArguments } from "../interfaces/IArguments";
+import formatPath from "./formatProjectPath";
 import MessagesHandler from "./messages";
 
 class Arguments {
@@ -54,8 +54,8 @@ class Arguments {
 
       const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IArgumentsMapped = await this.mapArguments(parsedArgs);
 
-      // Format the path to the targeted directory
-      const pathToDirectory: string = await this.formatPath(parsedArgs._[0]);
+      // Formats the path to the directory where we want the project created
+      const pathToDirectory: string = await formatPath(parsedArgs._[0]);
 
       return {
         projectDirectory: pathToDirectory,
@@ -125,29 +125,6 @@ class Arguments {
   // Removes the -- prefix from the passed arguments
   private removeArgumentPrefix(argument: string): string {
     return argument.replace(/(--)/gi, "");
-  }
-
-  // Formats the path to the directory where we want the project created
-  // NOTE: Maybe move to a separate function / class, outside of ArgumentsHandler ?
-  private async formatPath(directoryPath: string): Promise<string> {
-    let fullPath: string = "";
-
-    switch (true) {
-      // If the user does not pass a path as an argument, default to the current working directory
-      case !directoryPath || directoryPath === ".":
-        fullPath = process.cwd();
-        break;
-      // If the passed directory path is absolute, normalize it removing any extra characters
-      case path.isAbsolute(directoryPath):
-        fullPath = path.normalize(directoryPath);
-        break;
-      // If the passed directory path is a relative path, merge the current working directory and the argument representing the path
-      case !path.isAbsolute(directoryPath):
-        fullPath = path.join(process.cwd(), directoryPath);
-        break;
-    }
-
-    return fullPath;
   }
 }
 
