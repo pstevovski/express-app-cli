@@ -1,6 +1,6 @@
 {
     "name": "express-app-cli",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "CLI app for generating an express project folder structure",
     "main": "build/app.js",
     "bin": {
