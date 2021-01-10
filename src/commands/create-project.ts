@@ -42,26 +42,19 @@ class ProjectTemplate {
     
     // Copy main template project files
     private async copyFiles(details: IProjectCreate, directory: string): Promise<void> {
-        let { template, db, testing, orm, engine } = details;
+        const { template, db, testing, orm, engine } = details;
 
-        // Convert to lowercase - TODO: Refactor, converting to lowercase is present on 2 places atm
-        template = template.toLowerCase();
-        db = db.toLowerCase();
-
-        if (orm) orm = orm.toLowerCase();
-        if (engine) engine = engine.toLowerCase();
-
-        const { main_files, dbFiles, default_files, defaultSQL, config } = this.getTemplateDirectory(template, db, orm);
+        const { mainFiles, dbFiles, defaultFiles, defaultSQL, config } = this.getTemplateDirectory(template, db, orm);
 
         try {
-            await access(default_files, fs.constants.R_OK);
-            await access(main_files, fs.constants.R_OK);
+            await access(defaultFiles, fs.constants.R_OK);
+            await access(mainFiles, fs.constants.R_OK);
             await access(dbFiles, fs.constants.R_OK);
             await access(config, fs.constants.R_OK);
             
             // TODO: Replace ncp (copy in this case) with fse.copy()
             // Copy files from the default files template
-            await copy(default_files, directory, { 
+            await copy(defaultFiles, directory, { 
                 clobber: false,
                 filter: testing ? undefined : RegExp('tests')
             });
@@ -71,7 +64,7 @@ class ProjectTemplate {
             if (db !== "mongodb") await fse.copy(defaultSQL, directory, { overwrite: false });
 
             // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
-            await fse.copy(main_files, directory, { overwrite: false });
+            await fse.copy(mainFiles, directory, { overwrite: false });
 
             // Copy files recursively from db template directory to targeted directory and ALLOW overwrite
             await fse.copy(dbFiles, `${directory}/`, {
@@ -119,10 +112,10 @@ class ProjectTemplate {
         const pathname: string = new URL(this._currentFileURL).pathname;
         const pathToTemplates: string = "../../src/templates";
 
-        const main_files: string = path.resolve(pathname, `${pathToTemplates}/${template.toLowerCase()}/server`);
+        const mainFiles: string = path.resolve(pathname, `${pathToTemplates}/${template.toLowerCase()}/server`);
 
         // Copy default files and include tests folder if user selected testing option
-        const default_files: string = path.resolve(pathname, `${pathToTemplates}/default`);
+        const defaultFiles: string = path.resolve(pathname, `${pathToTemplates}/default`);
 
         // Copy default files and folders from the SQL databases folder
         const defaultSQL: string = path.resolve(pathname, `${pathToTemplates}/db/sql/default`); 
@@ -145,19 +138,12 @@ class ProjectTemplate {
                 break;
         }
 
-        return { main_files, dbFiles, default_files, defaultSQL, config };
+        return { mainFiles, dbFiles, defaultFiles, defaultSQL, config };
     }
 
     // Create config/index, .env and .gitignore files
     private async createFiles(details: IProjectCreate, directory: string) {
-        let { template, db, testing, orm }: IProjectCreate = details;
-
-        // Convert details to lowercase
-        template = template.toLowerCase();
-        db = db.toLowerCase();
-        
-        if (orm) orm = orm.toLowerCase();
-        if (testing) testing = testing.toLowerCase();
+        const { template, db, testing, orm }: IProjectCreate = details;
 
         // Create the .env file if an ORM was selected, otherwise use the predefined one
         if (orm) await this.createENVFile(db, directory);
