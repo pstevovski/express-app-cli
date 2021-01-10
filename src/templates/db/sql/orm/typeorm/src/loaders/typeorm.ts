@@ -7,7 +7,7 @@ const connection = createConnection({
     type: config.DB_TYPE,
     host: config.DB_HOST,
     port: config.DB_PORT,
-    username: config.DB_USERNAME,
+    username: config.DB_USER,
     password: config.DB_PASSWORD,
     database: config.DB,
 
