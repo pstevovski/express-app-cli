@@ -44,6 +44,9 @@ class ProjectTemplate {
   private async copyFiles(details: IProjectCreate, directory: string): Promise<void> {
     const { template, db, testing, orm, engine } = details;
 
+    // If selected template is Javascript, don't copy .ts files. Otherwise, don't copy .js files.
+    const fileExtensionFilter: string = template === "javascript" ? ".ts" : ".js";
+
     const { mainFiles, dbFiles, defaultFiles, defaultSQL, config } = this.getTemplateDirectory(template, db, orm);
 
     try {
@@ -62,33 +65,24 @@ class ProjectTemplate {
         }
       });
 
-      // NOTE: Should it be copied at all when MongoDB is selected?
       // Copy files recursively from default SQL databases folder
       if (db !== "mongodb") await fse.copy(defaultSQL, directory, { overwrite: false });
 
       // Copy files recursively from main template directory to targeted directory and DO NOT overwrite
-      await fse.copy(mainFiles, directory, { overwrite: false });
+      await ncpCopy(mainFiles, directory, { clobber: false });
 
       // Copy files recursively from db template directory to targeted directory and ALLOW overwrite
-      await fse.copy(dbFiles, `${directory}/`, {
-        overwrite: true,
-        filter: async (file: string): Promise<boolean> => {
-          if (template.toLowerCase() === "javascript") {
-            return (
-              (await fse.stat(file)).isDirectory() ||
-              file.endsWith(".js") ||
-              file.endsWith(".md") ||
-              file.endsWith(".env")
-            );
+      await ncpCopy(dbFiles, `${directory}/`, {
+        clobber: true,
+        filter: (file: string) => {
+          if (fs.lstatSync(file).isDirectory()) {
+            // Copy all database related folders
+            return true;
           } else {
-            return (
-              (await fse.stat(file)).isDirectory() ||
-              file.endsWith(".ts") ||
-              file.endsWith(".md") ||
-              file.endsWith(".env")
-            );
+            // Copy only files matching the extension filter
+            return file.endsWith(fileExtensionFilter) ? false : true;
           }
-        },
+        }
       });
 
       // Copy files from the configs templates directory
