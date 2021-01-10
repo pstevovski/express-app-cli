@@ -4,13 +4,15 @@
 
 ## Installing and Using the CLI
 
-To use the CLI, you'll need to install it globally trough:
+To use the CLI, you'll need to install it globally trough **npm**:
 > npm install -g express-app-cli
+
+Or you can use **yarn** aswell:
+> yarn global add express-app-cli
 
 Then you can use by running:
 > express-app < project-directory > [options]
 
-- *Yarn support is yet to be added*.
 - *NPX support is currently not working properly, that will be updated in future release.*
 
 ## Overview :eyes:
