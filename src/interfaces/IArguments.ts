@@ -2,7 +2,7 @@ export interface IArgumentsParsed {
   projectDirectory: string;
   template: string;
   db: string;
-  testing: string,
+  testing: string;
   orm: string;
   engine: string;
 }
@@ -14,6 +14,5 @@ export interface IArgumentsMapped {
   ORM: string[];
   ENGINE: string[];
 }
-
 
 export type ParseArguments = IArgumentsParsed | undefined;

@@ -4,7 +4,6 @@ import { IArgumentsMapped, ParseArguments } from "../interfaces/IArguments";
 import MessagesHandler from "./messages";
 
 class Arguments {
-
   public async parseArguments(args: string[]): Promise<ParseArguments> {
     // Get the arguments from the user
     try {
@@ -13,7 +12,7 @@ class Arguments {
           "--help": Boolean,
           "--version": Boolean,
           "--default": Boolean,
-          
+
           // language template arguments
           "--javascript": Boolean,
           "--typescript": Boolean,
@@ -44,7 +43,7 @@ class Arguments {
           "--js": "--javascript",
           "--ts": "--typescript",
           "--hbs": "--handlebars",
-          "--pg": "--postgres"
+          "--pg": "--postgres",
         },
         { argv: args.slice(2) },
       );
@@ -56,7 +55,7 @@ class Arguments {
       const { DB, LANGUAGE, TESTING_LIBRARY, ORM, ENGINE }: IArgumentsMapped = await this.mapArguments(parsedArgs);
 
       // Format the path to the targeted directory
-      const pathToDirectory: string = await this.formatPath(parsedArgs._[0]); 
+      const pathToDirectory: string = await this.formatPath(parsedArgs._[0]);
 
       return {
         projectDirectory: pathToDirectory,
@@ -64,13 +63,12 @@ class Arguments {
         db: DB[0],
         testing: TESTING_LIBRARY[0],
         orm: ORM[0],
-        engine: ENGINE[0]
+        engine: ENGINE[0],
       };
-    } catch(err) {
+    } catch (err) {
       MessagesHandler.error(err.message);
     }
-
-  };
+  }
 
   // Map arguments to respective values
   private mapArguments(args: any): IArgumentsMapped {
@@ -79,20 +77,19 @@ class Arguments {
     const TESTING_LIBRARY: string[] = [];
     const ORM: string[] = [];
     const ENGINE: string[] = [];
-    
+
     if (args["--default"]) {
-      MessagesHandler.info("Creating default project template: JavaScript, MongoDB with Jest testing library.")
-      
+      MessagesHandler.info("Creating default project template: JavaScript, MongoDB with Jest testing library.");
+
       LANGUAGE.push("javascript");
       DB.push("mongodb");
       TESTING_LIBRARY.push("jest");
     } else {
-
       // Map arguments to an array of their respective values
-      for(const [key] of Object.entries(args)) {
+      for (const [key] of Object.entries(args)) {
         const argument = this.removeArgumentPrefix(key);
 
-        switch(true) {
+        switch (true) {
           case ["mongodb", "postgres", "mysql", "sqlite"].includes(argument):
             DB.push(argument);
             break;
@@ -110,7 +107,7 @@ class Arguments {
             break;
         }
       }
-    };
+    }
 
     // Check if there are more arguments than there should be based on argument category
     if (DB.length > 1 || LANGUAGE.length > 1 || TESTING_LIBRARY.length > 1 || ORM.length > 1 || ENGINE.length > 1) {
