@@ -1,7 +1,7 @@
 export interface ITemplateDirectories {
-    main_files: string;
+    mainFiles: string;
     dbFiles: string;
-    default_files: string;
+    defaultFiles: string;
     defaultSQL: string;
     config: string;
 }
