@@ -11,5 +11,5 @@ module.exports = {
     DB_PORT: process.env[`DB_PORT_${environment}`],
     DB_HOST: process.env[`DB_HOST_${environment}`],
     DB_PASSWORD: process.env[`DB_PASSWORD_${environment}`],
-    DB_DIALECT: process.env.DB_DIALECT
+    DB_TYPE: process.env.DB_TYPE
 };

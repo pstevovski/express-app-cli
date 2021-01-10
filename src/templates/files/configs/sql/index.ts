@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Default Config object type
-type DB_DIALECT = "mysql" | "postgres" | "sqlite" | "mariadb" | "mssql" | undefined;
 type ConfigSQL = {
     DB: string;
     PORT: string | number;
@@ -12,7 +11,7 @@ type ConfigSQL = {
     DB_USER: string;
     DB_HOST: string;
     DB_PASSWORD: string;
-    DB_DIALECT: DB_DIALECT;
+    DB_TYPE: any;
 }
 
 // Get the environment in which the server is currently running
@@ -25,7 +24,7 @@ const config: ConfigSQL = {
     DB_PORT: process.env[`DB_PORT_${environment}`]!,
     DB_HOST: process.env[`DB_HOST_${environment}`]!,
     DB_PASSWORD: process.env[`DB_PASSWORD_${environment}`]!,
-    DB_DIALECT: process.env.DB_DIALECT as DB_DIALECT
+    DB_TYPE: process.env.DB_TYPE
 }
 
 export default config;
