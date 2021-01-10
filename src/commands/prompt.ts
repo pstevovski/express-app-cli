@@ -1,25 +1,25 @@
 import inquirer, { Answers } from "inquirer";
-import { IArgumentsParsed } from "../interfaces/IArguments";
+import { ParsedArguments } from "../interfaces/IArguments";
 
-const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsParsed): Promise<Answers> => {
+const promptUser = async ({ language, database, testLibrary, orm, templatingEngine }: ParsedArguments): Promise<Answers> => {
   const questions: Answers[] = [];
 
-  // Checks for prompting user questions
-  const optionalArgumentsExist: boolean = template && db && (testing || orm || engine) ? true : false;
+  // If optional arguments are provided (testing, orm, engine) then use only what was provided and dont ask questions
+  const optionalArgumentsExist: boolean = language && database && (testLibrary || orm || templatingEngine) ? true : false;
 
   // If any of the optional arguments is passed by the user, use ONLY what was passed as arguments for creating the project
   if (optionalArgumentsExist) {
     return {
-      template,
-      db,
-      testing: testing || null,
+      language,
+      database,
+      testLibrary: testLibrary || null,
       orm: orm || null,
-      engine: engine || null,
+      templatingEngine: templatingEngine || null,
     };
   }
 
   // If arguments were not passed, prompt the user for answers
-  if (!template)
+  if (!language)
     questions.push({
       type: "list",
       name: "template",
@@ -28,15 +28,15 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
       choices: ["JavaScript", "TypeScript"],
     });
 
-  if (!db)
+  if (!database)
     questions.push({
       type: "list",
-      name: "db",
+      name: "database",
       message: "Choose the database you would like to be used:",
       choices: ["MongoDB", "MySQL", "Postgres", "SQLite"],
     });
 
-  if (!testing)
+  if (!testLibrary)
     questions.push(
       {
         type: "confirm",
@@ -46,21 +46,21 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
       },
       {
         type: "list",
-        name: "testing_library",
+        name: "testLibrary",
         message: "Choose preferred testing library:",
         choices: ["Jest", "Mocha", "Chai"],
         when: (answers: Answers) => answers.include_testing,
       },
     );
 
-  if (!orm && db !== "mongodb")
+  if (!orm && database !== "mongodb")
     questions.push(
       {
         type: "confirm",
         name: "orm_use",
         message: "Would you like to include a ORM to use with the selected SQL database?",
         default: true,
-        when: (answers: Answers) => answers.db !== "MongoDB",
+        when: (answers: Answers) => answers.database !== "MongoDB",
       },
       {
         type: "list",
@@ -72,7 +72,7 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
     );
 
   // If templating engine was not sent as a argument by the user
-  if (!engine)
+  if (!templatingEngine)
     questions.push(
       {
         type: "confirm",
@@ -82,7 +82,7 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
       },
       {
         type: "list",
-        name: "engine",
+        name: "templatingEngine",
         message: "Select a templating engine that you would like to use: ",
         choices: ["Handlebars", "EJS", "Pug"],
         when: (answers: Answers) => answers.engine_use,
@@ -97,11 +97,11 @@ const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsPars
   }
 
   const returnedAnswers: Answers = {
-    template: template || answers.template,
-    db: db || answers.db,
-    testing: testing || answers.testing_library,
+    language: language || answers.language,
+    database: database || answers.database,
+    testLibrary: testLibrary || answers.testLibrary,
     orm: orm || answers.orm,
-    engine: engine || answers.engine,
+    templatingEngine: templatingEngine || answers.templatingEngine,
   };
 
   return returnedAnswers;

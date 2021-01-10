@@ -1,18 +1,24 @@
-export interface IArgumentsParsed {
-  projectDirectory: string;
-  template: string;
-  db: string;
-  testing: string;
-  orm: string;
-  engine: string;
+export type LanguageTypes = "javascript" | "typescript";
+export type DatabaseTypes = "mongodb" | "mysql" | "postgres" | "sqlite";
+export type TestingLibraryTypes = "jest" | "chai" | "mocha";
+export type OrmTypes = "sequelize" | "typeorm";
+export type TemlpatingEngineTypes = "handlebars" | "ejs" | "pug";
+
+export interface ProjectArguments {
+  language: LanguageTypes;
+  database: DatabaseTypes;
+  orm: OrmTypes;
+  testLibrary: TestingLibraryTypes;
+  templatingEngine: TemlpatingEngineTypes;
 }
 
-export interface IArgumentsMapped {
-  DB: string[];
-  LANGUAGE: string[];
-  TESTING_LIBRARY: string[];
-  ORM: string[];
-  ENGINE: string[];
+export interface ParsedArguments extends ProjectArguments { directory: string; }
+export interface MappedArguments {
+  DATABASE: DatabaseTypes[];
+  LANGUAGE: LanguageTypes[];
+  TESTING_LIBRARY: TestingLibraryTypes[];
+  ORM: OrmTypes[];
+  TEMPLATING_ENGINE: TemlpatingEngineTypes[];
 }
 
-export type ParseArguments = IArgumentsParsed | undefined;
+export type ParseArguments = ParsedArguments | undefined;

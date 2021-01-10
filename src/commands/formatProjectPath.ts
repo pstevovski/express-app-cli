@@ -1,6 +1,6 @@
 import path from "path";
 
-const formatPath = async (directoryPath: string): Promise<string> => {
+const formatPath = (directoryPath: string): string => {
     let fullPath: string = "";
 
     switch (true) {
