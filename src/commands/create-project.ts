@@ -162,10 +162,10 @@ class ProjectTemplate {
 
     // Creates the .gitignore file that marks which files and folders to be ignored by Git
     private createGitignoreFile(template: string, directory: string, testing?: string): void {
-        const gitignore_path: string = `${directory}/.gitignore`;
-        const gitignore_content: string = gitignore(template, testing);
+        const gitignorePath: string = `${directory}/.gitignore`;
+        const gitignoreContent: string = gitignore(template, testing);
 
-        fs.writeFileSync(gitignore_path, gitignore_content);
+        fs.writeFileSync(gitignorePath, gitignoreContent);
     }
 
     // Append the selected View (Templating) engine if selected by user

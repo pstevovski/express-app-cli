@@ -2,7 +2,7 @@ import inquirer, { Answers } from "inquirer";
 import { IArgumentsParsed } from "../interfaces/IArguments";
 
 const promptUser = async ({ template, db, testing, orm, engine }: IArgumentsParsed): Promise<Answers> => {
-  let questions: Answers[] = [];
+  const questions: Answers[] = [];
 
   // Checks for prompting user questions
   const optionalArgumentsExist: boolean = (template && db) && (testing || orm || engine) ? true : false;
