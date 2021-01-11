@@ -2,7 +2,7 @@ import path from "path";
 
 import formatProjectPath from "../../src/commands/formatProjectPath";
 
-describe("PARSE ARGUMENTS:", () => {
+describe("FORMAT PATH TO PROJECT:", () => {
     // Remove the pushed argument after each test
     afterEach(() => process.argv.pop());
 
