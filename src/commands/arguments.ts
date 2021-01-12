@@ -64,9 +64,7 @@ class Arguments {
       if (args.includes("--version") || args.includes("--v")) MessagesHandler.version();
 
       // Get the mapped values for the specified arguments
-      const { DATABASE, LANGUAGE, TESTING_LIBRARY, ORM, TEMPLATING_ENGINE }: MappedArguments = this.mapArguments(
-        parsedArgs,
-      );
+      const { DATABASE, LANGUAGE, TESTING_LIBRARY, ORM, TEMPLATING_ENGINE }: MappedArguments = this.mapArguments(parsedArgs);
 
       // Formats the path to the directory where we want the project created
       const pathToDirectory: string = formatPath(parsedArgs._[0]);
