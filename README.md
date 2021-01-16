@@ -13,8 +13,6 @@ Or you can use **yarn** aswell:
 Then you can use by running:
 > express-app < project-directory > [options]
 
-- *NPX support is currently not working properly, that will be updated in future release.*
-
 ## Overview :eyes:
 
 This CLI accepts multiple options used for configuring the project, such as:
