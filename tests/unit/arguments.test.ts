@@ -7,6 +7,7 @@ import MessagesHandler from "../../src/commands/messages";
 describe("ARGUMENTS", () => {
     afterEach(() => {
         jest.clearAllMocks();
+        process.argv.splice(2, process.argv.length - 1);
     });
 
     describe("HELP", () => {
@@ -47,5 +48,40 @@ describe("ARGUMENTS", () => {
 
             expect(spy).toHaveBeenCalled();
         })
+    });
+
+    describe("MAP ARGUMENTS", () => {
+        it("should return default project setup (javascript, mongodb & jest) with an info message", async() => {
+            const spy = jest.spyOn(MessagesHandler, "info");
+
+            process.argv.push("--default");
+
+            const parsedArguments = await ArgumentsHandler.parseArguments(process.argv);
+
+            expect(spy).toHaveBeenCalledWith("Creating default project template: JavaScript, MongoDB with Jest testing library.");
+            expect(parsedArguments!.language).toMatch("javascript");
+            expect(parsedArguments!.database).toMatch("mongodb");
+            expect(parsedArguments!.testLibrary).toMatch("jest");
+        });
+
+        it("should throw an error if multiple arguments of same category were used", async() => {
+            const spy = jest.spyOn(MessagesHandler, "error");
+
+            process.argv.push("--mongodb", "--pg");
+            
+            await ArgumentsHandler.parseArguments(process.argv);
+
+            expect(spy).toHaveBeenCalledWith("Invalid number of arguments provided.");
+        });
+
+        it("should throw an error if we try to use MongoDB with Sequelize/TypeORM argument", async() => {
+            const spy = jest.spyOn(MessagesHandler, "error");
+
+            process.argv.push("--mongodb", "--sequelize");
+
+            await ArgumentsHandler.parseArguments(process.argv);
+
+            expect(spy).toHaveBeenCalledWith("You can't use an ORM for a SQL database, with MongoDB.");
+        });
     })
 })
