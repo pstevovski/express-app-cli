@@ -80,6 +80,11 @@ A quick example demonstrating the usage of the CLI:
     # Start and watch the server for any changes
     npm run watch
 
+## Planned Features
+Features that are planned to be added in a future update, as additional **optional** configuration properties:
+- Setup for Heroku deployment
+- Basic user authentication and authorization using JWT
+- Support for PrismaORM
 
 ## Contribution :construction_worker:
 If you have any recommendations for what can be improved or added to the CLI, please feel free to open a pull request.
