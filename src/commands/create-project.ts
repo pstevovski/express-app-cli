@@ -52,11 +52,6 @@ class Project {
     // Get the paths to the template files
     const { mainFiles, dbFiles, defaultFiles, defaultSQL, config } = this.getTemplateDirectory(language, database, orm);
 
-    console.log("MAIN FILES", mainFiles)
-    console.log("DB FILES", dbFiles);
-    console.log("DEFAULT SQL", defaultSQL);
-    console.log("CONFIG", config)
-
     try {
       await access(defaultFiles, fs.constants.R_OK);
       await access(mainFiles, fs.constants.R_OK);

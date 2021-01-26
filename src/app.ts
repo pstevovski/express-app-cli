@@ -24,8 +24,6 @@ async function startApp(): Promise<void> {
   const answers: Answers = await promptUser(parsedArguments);
   const { language, database, testLibrary, orm, templatingEngine } = answers;
 
-  console.log("answers", answers)
-
   // Execute tasks in order
   const tasks = new Listr([
     {
