@@ -29,7 +29,7 @@ const promptUser = async ({
   if (!language)
     questions.push({
       type: "list",
-      name: "template",
+      name: "language",
       message: "Choose the template you want to be used:",
       default: "JavaScript",
       choices: ["JavaScript", "TypeScript"],
